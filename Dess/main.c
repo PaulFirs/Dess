@@ -106,7 +106,7 @@ uint8_t I2C_single_read(uint8_t HW_address, uint8_t addr)
 }
 
 
-inline static uint8_t read_temp(void){
+inline static uint8_t DS3231_read_temp(void){
 	uint8_t temp = 1;
 
 	// Ожидание сброса BSY
@@ -125,6 +125,33 @@ inline static uint8_t read_temp(void){
 	return I2C_single_read(DS_ADDRESS, DS3231_T_MSB);
 }
 
+
+
+inline static void ds3231_del_alarm(void){
+	uint8_t temp = 1;
+	temp = I2C_single_read(DS_ADDRESS, DS3231_STATUS);
+	temp &= ~(1 << DS3231_A1F);
+	I2C_single_write(DS_ADDRESS, DS3231_STATUS, temp);
+}
+
+inline static void ds3231_on_alarm(uint8_t stat){
+
+	ds3231_del_alarm();
+	uint8_t temp = 1;
+	temp = I2C_single_read(DS_ADDRESS, DS3231_CONTROL);
+	if(stat){
+		temp |= (1 << DS3231_A1IE);// включить будильник
+	}
+	else{
+		temp &= ~(1 << DS3231_A1IE);
+	}
+
+	I2C_single_write(DS_ADDRESS, DS3231_CONTROL, temp);
+
+
+}
+
+
 int main(void)
 {
 
@@ -140,28 +167,46 @@ int main(void)
     	if (RX_FLAG_END_LINE == 1) {
 			RX_FLAG_END_LINE = 0;
 			//USARTSend(RX_BUF);
+			TX_BUF[0] = RX_BUF[0];//копирование ответной команды
 			switch (RX_BUF[0]) {            //читаем первый принятый байт-команду
+				case SET_TIME://команда связана с GET_TIME. Обе команды служат для синхронизации времени с телефоном
+					for(uint8_t i = 3; i; i--)
+						I2C_single_write(DS_ADDRESS, (i-1), RX_BUF[4-i]);//Запись времени от телефона в модуль
+
 
 				case GET_TIME:
-					TX_BUF[0] = GET_TIME;
 					for(uint8_t i = 3; i; i--)
-						TX_BUF[4-i] = I2C_single_read(DS_ADDRESS, (i-1));
-					USARTSend(TX_BUF);
+						TX_BUF[4-i] = I2C_single_read(DS_ADDRESS, (i-1));//Чтение времени
 					break;
 
-				case SET_TIME:
-					for(uint8_t i = 3; i; i--)
-						I2C_single_write(DS_ADDRESS, (i-1), RX_BUF[4-i]);
-					break;
+
 
 				case GET_TEMP:
-					TX_BUF[0] = GET_TEMP;
-					TX_BUF[1] = read_temp();
-					USARTSend(TX_BUF);
+					TX_BUF[1] = DS3231_read_temp();//Чтение темпеатуры из модуля
+					break;
+
+				case GET_SET_ALARM:
+
+					if(RX_BUF[5]){//Блок выполняется, если пользователь перенастроил будильник
+						if(RX_BUF[4]!=2)//Выполнять только если было изменение состояния будильника
+							ds3231_on_alarm(RX_BUF[4]);
+
+						if(RX_BUF[4]==2){//Выполнять если изменилось время будильника
+							for(uint8_t i = 3; i; i--)
+								I2C_single_write(DS_ADDRESS, (i+6), RX_BUF[4-i]);
+						}
+					}
+
+
+					for(uint8_t i = 3; i; i--)
+						TX_BUF[4-i] = I2C_single_read(DS_ADDRESS, (i+6));//Чтение времени будильника
+
+					TX_BUF[4] = I2C_single_read(DS_ADDRESS, DS3231_CONTROL) & (1 << DS3231_A1IE);//Чтение состояния будильника
 					break;
 
 			}
-			clear_TXBuffer();
+			USARTSend(TX_BUF);//отправка собранного пакета данных
+			clear_TXBuffer();//очистка буфера TX
 		}
     }
 }
