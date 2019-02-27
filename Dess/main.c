@@ -11,18 +11,19 @@ volatile uint8_t RX_FLAG_END_LINE = 0;
 volatile uint8_t RXi = 0;
 volatile uint8_t RX_BUF[BUF_SIZE];
 volatile uint8_t TX_BUF[BUF_SIZE];
+volatile uint8_t timer_uart = 0;
 
 
-void clear_TXBuffer(void) {
+void clear_Buffer(uint8_t *buf) {
     for (uint8_t i = 0; i<BUF_SIZE; i++)
-        TX_BUF[i] = '\0';
+    	buf[i] = '\0';
 }
 
-inline static uint8_t CRC8(volatile uint8_t word[9]) {
+inline static uint8_t CRC8(volatile uint8_t word[BUF_SIZE]) {
     uint8_t crc = 0;
 	uint8_t flag = 0;
 	uint8_t data = 0;
-	for(uint8_t i = 0; i<8; i++){
+	for(uint8_t i = 0; i<(BUF_SIZE-1); i++){
 		data = word[i];
 		for (int j = 0; j < 8; j++) {
 			flag = crc^data;
@@ -41,6 +42,7 @@ void USART1_IRQHandler(void)
 {
     if ((USART1->SR & USART_FLAG_RXNE) != (u16)RESET)
     {
+    	timer_uart = 8;
 		RX_BUF[RXi] = USART_ReceiveData(USART1); //Присвоение элементу массива значения очередного байта
 
 		if ((RXi == BUF_SIZE-1)&&(RX_BUF[BUF_SIZE-1]==CRC8(RX_BUF))){//Проверка на целостность пакета данных (Величина и контрольная сумма)
@@ -166,7 +168,7 @@ int main(void)
     {
     	if (RX_FLAG_END_LINE == 1) {
 			RX_FLAG_END_LINE = 0;
-			//USARTSend(RX_BUF);
+
 			TX_BUF[0] = RX_BUF[0];//копирование ответной команды
 			switch (RX_BUF[0]) {            //читаем первый принятый байт-команду
 				case SET_TIME://команда связана с GET_TIME. Обе команды служат для синхронизации времени с телефоном
@@ -205,8 +207,17 @@ int main(void)
 					break;
 
 			}
+			TX_BUF[BUF_SIZE-1] = CRC8(TX_BUF);
 			USARTSend(TX_BUF);//отправка собранного пакета данных
-			clear_TXBuffer();//очистка буфера TX
+			clear_Buffer(TX_BUF);//очистка буфера TX
+		}
+    	if(timer_uart) {
+			for(uint8_t i = 50000; i; i--);
+			timer_uart--;
+			if(!timer_uart){
+				clear_Buffer(RX_BUF);
+				RXi = 0;
+			}
 		}
     }
 }
