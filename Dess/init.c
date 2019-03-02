@@ -151,6 +151,13 @@ void ports_init(void) {
 	GPIO_Init(GPIOA, &port);
 
 
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
+	//GPIO_StructInit(&port);
+	port.GPIO_Mode = GPIO_Mode_Out_PP;
+	port.GPIO_Pin = GPIO_Pin_13;
+	port.GPIO_Speed = GPIO_Speed_2MHz;
+	GPIO_Init(GPIOC, &port);
+
 }
 
 

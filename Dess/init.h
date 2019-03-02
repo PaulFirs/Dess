@@ -5,13 +5,21 @@
  extern "C" {
 #endif
 
-
+ /*
+  * Comands
+  */
 #define GET_TIME 			 0x00
 #define SET_TIME 			 0x01
 #define GET_TEMP 			 0x02
+#define GET_SET_ALARM 		 0x03
 
+#define ERROR		 		 0x7F
 
-
+/*
+ * Errors
+ */
+#define NOT_FULL_DATA 		 0x01
+#define NOT_EQUAL_CRC 		 0x02
 
 
 #define DS_ADDRESS            		0xD0

@@ -42,12 +42,18 @@ void USART1_IRQHandler(void)
 {
     if ((USART1->SR & USART_FLAG_RXNE) != (u16)RESET)
     {
-    	timer_uart = 8;
+    	timer_uart = 2;
 		RX_BUF[RXi] = USART_ReceiveData(USART1); //ѕрисвоение элементу массива значени€ очередного байта
 
-		if ((RXi == BUF_SIZE-1)&&(RX_BUF[BUF_SIZE-1]==CRC8(RX_BUF))){//ѕроверка на целостность пакета данных (¬еличина и контрольна€ сумма)
-			RX_FLAG_END_LINE = 1; //разрешение обработки данных в основном цикле
-			RXi = 0;//обнуление счетчика массива
+		if (RXi == BUF_SIZE-1){
+			if(RX_BUF[BUF_SIZE-1]==CRC8(RX_BUF)){//ѕроверка на целостность пакета данных (¬еличина и контрольна€ сумма)
+				RX_FLAG_END_LINE = 1; //разрешение обработки данных в основном цикле
+				RXi = 0;//обнуление счетчика массива
+
+			}
+			else{
+				USART_Error(NOT_EQUAL_CRC);
+			}
 		}
 		else {
 			RXi++;
@@ -57,6 +63,7 @@ void USART1_IRQHandler(void)
 
 void USARTSend(volatile uint8_t pucBuffer[BUF_SIZE])
 {
+	pucBuffer[BUF_SIZE-1] = CRC8(TX_BUF);
     for (uint8_t i=0;i<BUF_SIZE;i++)
     {
         USART_SendData(USART1, pucBuffer[i]);
@@ -64,9 +71,18 @@ void USARTSend(volatile uint8_t pucBuffer[BUF_SIZE])
         {
         }
     }
+    clear_Buffer(TX_BUF);//очистка буфера TX
 }
 
-
+void USART_Error(volatile uint8_t err)
+{
+	clear_Buffer(RX_BUF);
+	timer_uart = 0;
+	RXi = 0;
+	TX_BUF[0] = ERROR;
+	TX_BUF[1] = err;
+	USARTSend(TX_BUF);
+}
 
 
 void I2C_single_write(uint8_t HW_address, uint8_t addr, uint8_t data)
@@ -162,13 +178,14 @@ int main(void)
 	servo_init();
 	ports_init();
 	I2C1_init();
-	//TX_BUF[1] = I2C_single_read(DS_ADDRESS, 0x00);
+
+	//GPIOC->ODR ^= GPIO_Pin_13;
 
     while(1)
     {
     	if (RX_FLAG_END_LINE == 1) {
+    		timer_uart = 0;
 			RX_FLAG_END_LINE = 0;
-
 			TX_BUF[0] = RX_BUF[0];//копирование ответной команды
 			switch (RX_BUF[0]) {            //читаем первый прин€тый байт-команду
 				case SET_TIME://команда св€зана с GET_TIME. ќбе команды служат дл€ синхронизации времени с телефоном
@@ -207,16 +224,13 @@ int main(void)
 					break;
 
 			}
-			TX_BUF[BUF_SIZE-1] = CRC8(TX_BUF);
 			USARTSend(TX_BUF);//отправка собранного пакета данных
-			clear_Buffer(TX_BUF);//очистка буфера TX
 		}
     	if(timer_uart) {
-			for(uint8_t i = 50000; i; i--);
+			for(uint16_t i = 50000; i; i--);
 			timer_uart--;
 			if(!timer_uart){
-				clear_Buffer(RX_BUF);
-				RXi = 0;
+				USART_Error(NOT_FULL_DATA);
 			}
 		}
     }
