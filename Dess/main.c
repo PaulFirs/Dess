@@ -13,7 +13,12 @@ volatile uint8_t RX_BUF[BUF_SIZE];
 volatile uint8_t TX_BUF[BUF_SIZE];
 volatile uint8_t timer_uart = 0;
 
+uint8_t was_I2C_ERR = 0;
 
+void delay()
+{
+for(volatile uint32_t del = 0; del<250000; del++);
+}
 void clear_Buffer(uint8_t *buf) {
     for (uint8_t i = 0; i<BUF_SIZE; i++)
     	buf[i] = '\0';
@@ -99,27 +104,47 @@ void I2C_single_write(uint8_t HW_address, uint8_t addr, uint8_t data)
 	while(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY));
 }
 
+uint8_t cicle(I2C_TypeDef* I2Cx, uint32_t I2C_EVENT){//обработка событий на шине I2C
+	/*
+	 * Счетчик проверяет событие и по истечению прописывает команду ошибки
+	 * Если событие произошло, то программа выходит из этой функции
+	 */
 
-
+	for(uint8_t i = 255; i; i--){
+		if(I2C_CheckEvent(I2Cx, I2C_EVENT))
+			return 0;
+	}
+	TX_BUF[0] = ERROR;
+	I2C_GenerateSTOP(I2C1, ENABLE);
+	return 1;
+}
 /*******************************************************************/
 uint8_t I2C_single_read(uint8_t HW_address, uint8_t addr)
 {
 	uint8_t data;
-	while(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY));
+
+
+
+	GPIOA->ODR ^= 0b1;
 	I2C_GenerateSTART(I2C1, ENABLE);
-	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
+	if(cicle(I2C1, I2C_EVENT_MASTER_MODE_SELECT))
+		return 1;
+	GPIOA->ODR ^= 0b10;
 	I2C_Send7bitAddress(I2C1, HW_address, I2C_Direction_Transmitter);
-	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
+	if(cicle(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))
+		return 1;
 	I2C_SendData(I2C1, addr);
-	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+	if(cicle(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED))
+		return 1;
 	I2C_GenerateSTART(I2C1, ENABLE);
-	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
+	if(cicle(I2C1, I2C_EVENT_MASTER_MODE_SELECT))
+		return 1;
 	I2C_Send7bitAddress(I2C1, HW_address, I2C_Direction_Receiver);
-	while(!I2C_CheckEvent(I2C1,I2C_EVENT_MASTER_BYTE_RECEIVED));
+	if(cicle(I2C1,I2C_EVENT_MASTER_BYTE_RECEIVED))
+		return 1;
 	data = I2C_ReceiveData(I2C1);
 	I2C_AcknowledgeConfig(I2C1, DISABLE);
 	I2C_GenerateSTOP(I2C1, ENABLE);
-	while(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY));
 	return data;
 }
 
@@ -186,6 +211,17 @@ int main(void)
     	if (RX_FLAG_END_LINE == 1) {
     		timer_uart = 0;
 			RX_FLAG_END_LINE = 0;
+
+			if(was_I2C_ERR && RX_BUF[0]<10){//Если была ошибка в шине I2C и пришла одна из команд связанных с этой шиной.
+
+				was_I2C_ERR = 0;
+
+				I2C_DeInit(I2C1);
+				delay();
+				I2C1_init();
+				delay();
+			}
+
 			TX_BUF[0] = RX_BUF[0];//копирование ответной команды
 			switch (RX_BUF[0]) {            //читаем первый принятый байт-команду
 				case SET_TIME://команда связана с GET_TIME. Обе команды служат для синхронизации времени с телефоном
@@ -216,7 +252,6 @@ int main(void)
 						}
 					}
 
-
 					for(uint8_t i = 3; i; i--)
 						TX_BUF[4-i] = I2C_single_read(DS_ADDRESS, (i+6));//Чтение времени будильника
 
@@ -224,7 +259,12 @@ int main(void)
 					break;
 
 			}
-			USARTSend(TX_BUF);//отправка собранного пакета данных
+			if(TX_BUF[0]!=ERROR)
+				USARTSend(TX_BUF);//отправка собранного пакета данных
+			else {
+				USART_Error(I2C_ERR);
+				was_I2C_ERR = 1;
+			}
 		}
     	if(timer_uart) {
 			for(uint16_t i = 50000; i; i--);
