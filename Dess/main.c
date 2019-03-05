@@ -47,25 +47,29 @@ void USART1_IRQHandler(void)
 {
     if ((USART1->SR & USART_FLAG_RXNE) != (u16)RESET)
     {
-    	timer_uart = 2;
+    	timer_uart = 2;// опытным путем вычисленное значение (имеет право на изменение)
 		RX_BUF[RXi] = USART_ReceiveData(USART1); //Присвоение элементу массива значения очередного байта
 
 		if (RXi == BUF_SIZE-1){
 			if(RX_BUF[BUF_SIZE-1]==CRC8(RX_BUF)){//Проверка на целостность пакета данных (Величина и контрольная сумма)
 				RX_FLAG_END_LINE = 1; //разрешение обработки данных в основном цикле
-				RXi = 0;//обнуление счетчика массива
+				RXi = 0;//обнуление счетчика массива. Только здесь это не вызовет ошибки
 
 			}
 			else{
-				USART_Error(NOT_EQUAL_CRC);
+				USART_Error(NOT_EQUAL_CRC);// не совпадение CRC. Значит потеряны данные. + защита от переполнения буфера
 			}
 		}
 		else {
-			RXi++;
+			RXi++;//переход к следующему элементу массива.
 		}
     }
 }
 
+
+/*
+ * срочно зделать через указатели!!!!!!!!!!!!!!!!!!!
+ */
 void USARTSend(volatile uint8_t pucBuffer[BUF_SIZE])
 {
 	pucBuffer[BUF_SIZE-1] = CRC8(TX_BUF);
@@ -125,23 +129,23 @@ uint8_t I2C_single_read(uint8_t HW_address, uint8_t addr)
 
 
 
-	GPIOA->ODR ^= 0b1;
+	//GPIOA->ODR ^= 0b1;
 	I2C_GenerateSTART(I2C1, ENABLE);
 	if(cicle(I2C1, I2C_EVENT_MASTER_MODE_SELECT))
-		return 1;
-	GPIOA->ODR ^= 0b10;
+		return 1;//просто для вылета из функции
+	//GPIOA->ODR ^= 0b10;
 	I2C_Send7bitAddress(I2C1, HW_address, I2C_Direction_Transmitter);
 	if(cicle(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))
-		return 1;
+		return 1;//просто для вылета из функции
 	I2C_SendData(I2C1, addr);
 	if(cicle(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED))
-		return 1;
+		return 1;//просто для вылета из функции
 	I2C_GenerateSTART(I2C1, ENABLE);
 	if(cicle(I2C1, I2C_EVENT_MASTER_MODE_SELECT))
-		return 1;
+		return 1;//просто для вылета из функции
 	I2C_Send7bitAddress(I2C1, HW_address, I2C_Direction_Receiver);
 	if(cicle(I2C1,I2C_EVENT_MASTER_BYTE_RECEIVED))
-		return 1;
+		return 1;//просто для вылета из функции
 	data = I2C_ReceiveData(I2C1);
 	I2C_AcknowledgeConfig(I2C1, DISABLE);
 	I2C_GenerateSTOP(I2C1, ENABLE);
@@ -266,11 +270,11 @@ int main(void)
 				was_I2C_ERR = 1;
 			}
 		}
-    	if(timer_uart) {
+    	if(timer_uart) {// длительность между байтами в пакете данных
 			for(uint16_t i = 50000; i; i--);
 			timer_uart--;
 			if(!timer_uart){
-				USART_Error(NOT_FULL_DATA);
+				USART_Error(NOT_FULL_DATA);// если он обнулился здесь, то это ошибка не полного пакета.
 			}
 		}
     }
