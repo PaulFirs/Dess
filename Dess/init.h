@@ -5,6 +5,20 @@
  extern "C" {
 #endif
 
+
+#define BUF_SIZE 9
+ volatile uint8_t RX_BUF[BUF_SIZE];
+ volatile uint8_t TX_BUF[BUF_SIZE];
+
+
+
+
+
+
+
+
+
+
  /*
   * Comands for I2C
   */
@@ -50,7 +64,7 @@
 
 void SetSysClockTo72(void);
 void usart_init(void);
-void servo_init(void) ;
+void servo_init(void);
 
 
 

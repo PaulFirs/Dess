@@ -6,11 +6,8 @@
 #include "stm32f10x_i2c.h"
 
 
-#define BUF_SIZE 9
 volatile uint8_t RX_FLAG_END_LINE = 0;
 volatile uint8_t RXi = 0;
-volatile uint8_t RX_BUF[BUF_SIZE];
-volatile uint8_t TX_BUF[BUF_SIZE];
 volatile uint8_t timer_uart = 0;
 
 uint8_t was_I2C_ERR = 0;
@@ -42,7 +39,12 @@ inline static uint8_t CRC8(volatile uint8_t word[BUF_SIZE]) {
 	return crc;
 }
 
-
+void EXTI0_IRQHandler(void)
+{
+	GPIOC->ODR^=GPIO_Pin_13; //Инвертируем состояние светодиода
+	ds3231_del_alarm();
+	EXTI->PR|=0x01; //Очищаем флаг
+}
 void USART1_IRQHandler(void)
 {
     if ((USART1->SR & USART_FLAG_RXNE) != (u16)RESET)
@@ -94,110 +96,6 @@ void USART_Error(volatile uint8_t err)
 }
 
 
-void I2C_single_write(uint8_t HW_address, uint8_t addr, uint8_t data)
-{
-	I2C_GenerateSTART(I2C1, ENABLE);
-	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
-	I2C_Send7bitAddress(I2C1, HW_address, I2C_Direction_Transmitter);
-	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
-	I2C_SendData(I2C1, addr);
-	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
-	I2C_SendData(I2C1, data);
-	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
-	I2C_GenerateSTOP(I2C1, ENABLE);
-	while(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY));
-}
-
-uint8_t cicle(I2C_TypeDef* I2Cx, uint32_t I2C_EVENT){//обработка событий на шине I2C
-	/*
-	 * Счетчик проверяет событие и по истечению прописывает команду ошибки
-	 * Если событие произошло, то программа выходит из этой функции
-	 */
-
-	for(uint8_t i = 255; i; i--){
-		if(I2C_CheckEvent(I2Cx, I2C_EVENT))
-			return 0;
-	}
-	TX_BUF[0] = ERROR;
-	I2C_GenerateSTOP(I2C1, ENABLE);
-	return 1;
-}
-/*******************************************************************/
-uint8_t I2C_single_read(uint8_t HW_address, uint8_t addr)
-{
-	uint8_t data;
-
-
-
-	//GPIOA->ODR ^= 0b1;
-	I2C_GenerateSTART(I2C1, ENABLE);
-	if(cicle(I2C1, I2C_EVENT_MASTER_MODE_SELECT))
-		return 1;//просто для вылета из функции
-	//GPIOA->ODR ^= 0b10;
-	I2C_Send7bitAddress(I2C1, HW_address, I2C_Direction_Transmitter);
-	if(cicle(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))
-		return 1;//просто для вылета из функции
-	I2C_SendData(I2C1, addr);
-	if(cicle(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED))
-		return 1;//просто для вылета из функции
-	I2C_GenerateSTART(I2C1, ENABLE);
-	if(cicle(I2C1, I2C_EVENT_MASTER_MODE_SELECT))
-		return 1;//просто для вылета из функции
-	I2C_Send7bitAddress(I2C1, HW_address, I2C_Direction_Receiver);
-	if(cicle(I2C1,I2C_EVENT_MASTER_BYTE_RECEIVED))
-		return 1;//просто для вылета из функции
-	data = I2C_ReceiveData(I2C1);
-	I2C_AcknowledgeConfig(I2C1, DISABLE);
-	I2C_GenerateSTOP(I2C1, ENABLE);
-	return data;
-}
-
-
-inline static uint8_t DS3231_read_temp(void){
-	uint8_t temp = 1;
-
-	// Ожидание сброса BSY
-	while(temp)
-	{
-		temp = I2C_single_read(DS_ADDRESS, DS3231_STATUS);
-		temp &= (1 << DS3231_BSY);
-	}
-
-	// Чтение регистра CONTROL и установка бита CONV
-	temp = I2C_single_read(DS_ADDRESS, DS3231_CONTROL);
-	temp |= (1 << DS3231_CONV);
-	I2C_single_write(DS_ADDRESS, DS3231_CONTROL, temp);
-
-	// Чтение температуры
-	return I2C_single_read(DS_ADDRESS, DS3231_T_MSB);
-}
-
-
-
-inline static void ds3231_del_alarm(void){
-	uint8_t temp = 1;
-	temp = I2C_single_read(DS_ADDRESS, DS3231_STATUS);
-	temp &= ~(1 << DS3231_A1F);
-	I2C_single_write(DS_ADDRESS, DS3231_STATUS, temp);
-}
-
-inline static void ds3231_on_alarm(uint8_t stat){
-
-	ds3231_del_alarm();
-	uint8_t temp = 1;
-	temp = I2C_single_read(DS_ADDRESS, DS3231_CONTROL);
-	if(stat){
-		temp |= (1 << DS3231_A1IE);// включить будильник
-	}
-	else{
-		temp &= ~(1 << DS3231_A1IE);
-	}
-
-	I2C_single_write(DS_ADDRESS, DS3231_CONTROL, temp);
-
-
-}
-
 
 int main(void)
 {
@@ -208,7 +106,7 @@ int main(void)
 	ports_init();
 	I2C1_init();
 
-	//GPIOC->ODR ^= GPIO_Pin_13;
+	GPIOC->ODR ^= GPIO_Pin_13;
 
     while(1)
     {
@@ -254,6 +152,7 @@ int main(void)
 							for(uint8_t i = 3; i; i--)
 								I2C_single_write(DS_ADDRESS, (i+6), RX_BUF[4-i]);
 						}
+						I2C_single_write(DS_ADDRESS, 0x0A, 0b10000000);
 					}
 
 					for(uint8_t i = 3; i; i--)

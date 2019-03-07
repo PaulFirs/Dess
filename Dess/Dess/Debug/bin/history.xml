@@ -1,17 +1,19 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <history>
    <processor signature="7.3.1 -mcpu=cortex-m3 -mthumb -g -nostartfiles -Map=Dess.map -O0 --gc-sections -LC:\CooCox\CoIDE\configuration\ProgramData\Dess -TC:\CooCox\CoIDE\configuration\ProgramData\Dess/link.ld -g">
-      <target file="Dess.elf" lastModified="1690b1fc629">
-         <source file="..\obj\stm32f10x_tim.o" lastModified="169009655ff"/>
-         <source file="..\obj\system_stm32f10x.o" lastModified="169009656da"/>
-         <source file="..\obj\startup_stm32f10x_md.o" lastModified="16900965776"/>
-         <source file="..\obj\stm32f10x_gpio.o" lastModified="16900965821"/>
-         <source file="..\obj\main.o" lastModified="1690b1fc3a9"/>
-         <source file="..\obj\init.o" lastModified="1690b00fd82"/>
-         <source file="..\obj\stm32f10x_rcc.o" lastModified="16900965ae2"/>
-         <source file="..\obj\stm32f10x_usart.o" lastModified="16900965b8e"/>
-         <source file="..\obj\misc.o" lastModified="16900965ca7"/>
-         <source file="..\obj\stm32f10x_i2c.o" lastModified="16900965d81"/>
+      <target file="Dess.elf" lastModified="16956a9e6e1">
+         <source file="..\obj\stm32f10x_tim.o" lastModified="16951f75b92"/>
+         <source file="..\obj\ds3231.o" lastModified="16956a58a3e"/>
+         <source file="..\obj\i2c.o" lastModified="16952069a1a"/>
+         <source file="..\obj\system_stm32f10x.o" lastModified="16951f75d57"/>
+         <source file="..\obj\startup_stm32f10x_md.o" lastModified="16951f75dc4"/>
+         <source file="..\obj\stm32f10x_gpio.o" lastModified="16951f75e41"/>
+         <source file="..\obj\main.o" lastModified="16956a58e94"/>
+         <source file="..\obj\init.o" lastModified="16956a9e470"/>
+         <source file="..\obj\stm32f10x_rcc.o" lastModified="16951f7613d"/>
+         <source file="..\obj\stm32f10x_usart.o" lastModified="16951f761c9"/>
+         <source file="..\obj\misc.o" lastModified="16951f76257"/>
+         <source file="..\obj\stm32f10x_i2c.o" lastModified="16951f762e3"/>
       </target>
    </processor>
 </history>
