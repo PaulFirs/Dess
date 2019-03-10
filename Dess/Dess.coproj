@@ -98,8 +98,8 @@
     <File name="stm_lib/src/periphery" path="" type="2"/>
     <File name="stm_lib/src/periphery/init.c" path="init.c" type="1"/>
     <File name="cmsis_boot/stm32f10x.h" path="cmsis_boot/stm32f10x.h" type="1"/>
-    <File name="stm_lib/inc/periphery/init.h" path="init.h" type="1"/>
     <File name="cmsis_boot/stm32f10x_conf.h" path="cmsis_boot/stm32f10x_conf.h" type="1"/>
+    <File name="stm_lib/inc/periphery/init.h" path="init.h" type="1"/>
     <File name="stm_lib/src" path="" type="2"/>
     <File name="cmsis" path="" type="2"/>
     <File name="stm_lib" path="" type="2"/>

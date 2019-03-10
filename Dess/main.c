@@ -102,7 +102,7 @@ int main(void)
 
 	SetSysClockTo72();
 	usart_init();
-	servo_init();
+	//servo_init();
 	ports_init();
 	I2C1_init();
 
