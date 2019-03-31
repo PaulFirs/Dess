@@ -10,6 +10,12 @@ volatile uint8_t RX_FLAG_END_LINE = 0;
 volatile uint8_t RXi = 0;
 volatile uint8_t timer_uart = 0;
 
+const uint8_t getppm[9]			= {0xff, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
+const uint8_t ppm2k[9]			= {0xff, 0x01, 0x99, 0x00, 0x00, 0x00, 0x07, 0xd0, 0x8f};
+const uint8_t ppm5k[9]			= {0xff, 0x01, 0x99, 0x00, 0x00, 0x00, 0x13, 0x88, 0xcb};
+const uint8_t autoclbdoff[9]	= {0xff, 0x01, 0x79, 0x00, 0x00, 0x00, 0x00, 0x00, 0x86};
+const uint8_t clbd[9]			= {0xff, 0x01, 0x88, 0x00, 0x00, 0x00, 0x07, 0xD0, 0xa0};
+
 uint8_t was_I2C_ERR = 0;
 
 void delay()
@@ -68,6 +74,25 @@ void USART1_IRQHandler(void)
     }
 }
 
+void USART3_IRQHandler(void)
+{
+    if ((USART3->SR & USART_FLAG_RXNE) != (u16)RESET)
+    {
+    	//timer_uart = 2;// опытным путем вычисленное значение (имеет право на изменение)
+		TX_BUF[RXi] = USART_ReceiveData(USART3); //ѕрисвоение элементу массива значени€ очередного байта
+
+		if (RXi == BUF_SIZE-1){
+				TX_BUF[0] = GET_CO2;
+				USARTSend(TX_BUF);
+				RXi = 0;//обнуление счетчика массива. “олько здесь это не вызовет ошибки
+		}
+		else {
+			RXi++;//переход к следующему элементу массива.
+		}
+    }
+}
+
+
 
 /*
  * срочно зделать через указатели!!!!!!!!!!!!!!!!!!!
@@ -83,6 +108,17 @@ void USARTSend(volatile uint8_t pucBuffer[BUF_SIZE])
         }
     }
     clear_Buffer(TX_BUF);//очистка буфера TX
+}
+
+void USART3Send(volatile uint8_t pucBuffer[BUF_SIZE])
+{
+    for (uint8_t i=0;i<BUF_SIZE;i++)
+    {
+        USART_SendData(USART3, pucBuffer[i]);
+        while(USART_GetFlagStatus(USART3, USART_FLAG_TC) == RESET)
+        {
+        }
+    }
 }
 
 void USART_Error(volatile uint8_t err)
@@ -101,10 +137,13 @@ int main(void)
 {
 
 	SetSysClockTo72();
-	usart_init();
+	usart1_init();
+
+	usart2_init();
 	//servo_init();
 	ports_init();
 	I2C1_init();
+
 
 	GPIOC->ODR ^= GPIO_Pin_13;
 
@@ -160,7 +199,26 @@ int main(void)
 
 					TX_BUF[4] = I2C_single_read(DS_ADDRESS, DS3231_CONTROL) & (1 << DS3231_A1IE);//„тение состо€ни€ будильника
 					break;
+				case GET_CO2:
+					switch(RX_BUF[1]) {
 
+					case 0:
+						USART3Send(getppm);
+						break;
+					case 1:
+						USART3Send(ppm2k);
+						break;
+					case 2:
+						USART3Send(ppm5k);
+						break;
+					case 3:
+						USART3Send(autoclbdoff);
+						break;
+					case 4:
+						USART3Send(clbd);
+						break;
+					}
+					break;
 			}
 			if(TX_BUF[0]!=ERROR)
 				USARTSend(TX_BUF);//отправка собранного пакета данных

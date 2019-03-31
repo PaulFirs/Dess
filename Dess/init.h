@@ -22,10 +22,14 @@
  /*
   * Comands for I2C
   */
-#define GET_TIME 			 0x00
-#define SET_TIME 			 0x01
-#define GET_TEMP 			 0x02
-#define GET_SET_ALARM 		 0x03
+#define GET_TIME 			0x00
+#define SET_TIME 			0x01
+#define GET_TEMP 			0x02
+#define GET_SET_ALARM 		0x03
+ /*
+  * Comands for MH-Z19B
+  */
+#define GET_CO2				0x04
 
 
  /*
@@ -62,8 +66,11 @@
 
 
 
+
+
 void SetSysClockTo72(void);
-void usart_init(void);
+void usart1_init(void);
+void usart2_init(void);
 void servo_init(void);
 
 
