@@ -167,7 +167,7 @@ void usart2_init(void)
 
     /* Configure USART1 Rx (PA.10) as input floating */
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;//болтающийся в воздухе пин, чтоб к нему подвести TX (она же имеет 5В!!!)
     GPIO_Init(GPIOB, &GPIO_InitStructure);
 
     /* Configure the USART1 */
@@ -238,7 +238,31 @@ void ports_init(void) {
 
 
 }
+void timer_init(void) {
 
+	TIM_TimeBaseInitTypeDef timer;
+
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+
+    TIM_TimeBaseStructInit(&timer);
+    timer.TIM_Prescaler = 7200;
+    timer.TIM_Period = 50000;
+	TIM_TimeBaseInit(TIM3, &timer);
+	TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
+	TIM_Cmd(TIM3, ENABLE);
+
+
+
+    /* NVIC Configuration */
+    NVIC_InitTypeDef NVIC_InitStructure;
+	    /* Enable the TIM3_IRQn Interrupt */
+	NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
+
+}
 
 void servo_init(void) {
 

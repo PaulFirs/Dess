@@ -18,7 +18,6 @@
 
 
 
-
  /*
   * Comands for I2C
   */

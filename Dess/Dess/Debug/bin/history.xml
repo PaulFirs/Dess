@@ -1,19 +1,19 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <history>
    <processor signature="7.3.1 -mcpu=cortex-m3 -mthumb -g -nostartfiles -Map=Dess.map -O0 --gc-sections -LC:\CooCox\CoIDE\configuration\ProgramData\Dess -TC:\CooCox\CoIDE\configuration\ProgramData\Dess/link.ld -g">
-      <target file="Dess.elf" lastModified="1696665c7ae">
-         <source file="..\obj\stm32f10x_tim.o" lastModified="169663fb593"/>
-         <source file="..\obj\ds3231.o" lastModified="169663fb70a"/>
-         <source file="..\obj\i2c.o" lastModified="169664fbf24"/>
-         <source file="..\obj\system_stm32f10x.o" lastModified="169663fb97b"/>
-         <source file="..\obj\startup_stm32f10x_md.o" lastModified="169663fba66"/>
-         <source file="..\obj\stm32f10x_gpio.o" lastModified="169663fbbec"/>
-         <source file="..\obj\main.o" lastModified="1696665c491"/>
-         <source file="..\obj\init.o" lastModified="169663fc0bf"/>
-         <source file="..\obj\stm32f10x_rcc.o" lastModified="169663fc274"/>
-         <source file="..\obj\stm32f10x_usart.o" lastModified="169663fc459"/>
-         <source file="..\obj\misc.o" lastModified="169663fc591"/>
-         <source file="..\obj\stm32f10x_i2c.o" lastModified="169663fc785"/>
+      <target file="Dess.elf" lastModified="16a2abb03bc">
+         <source file="..\obj\stm32f10x_tim.o" lastModified="16a2687bcb5"/>
+         <source file="..\obj\ds3231.o" lastModified="16a26e9ccb8"/>
+         <source file="..\obj\i2c.o" lastModified="16a26e9cd44"/>
+         <source file="..\obj\system_stm32f10x.o" lastModified="16a2687bf2c"/>
+         <source file="..\obj\startup_stm32f10x_md.o" lastModified="16a2687bfaf"/>
+         <source file="..\obj\stm32f10x_gpio.o" lastModified="16a2687c069"/>
+         <source file="..\obj\main.o" lastModified="16a2ab9323d"/>
+         <source file="..\obj\init.o" lastModified="16a2abb016a"/>
+         <source file="..\obj\stm32f10x_rcc.o" lastModified="16a2687c4c0"/>
+         <source file="..\obj\stm32f10x_usart.o" lastModified="16a2687c59c"/>
+         <source file="..\obj\misc.o" lastModified="16a2687c621"/>
+         <source file="..\obj\stm32f10x_i2c.o" lastModified="16a2687c6bb"/>
       </target>
    </processor>
 </history>

@@ -5,8 +5,14 @@
 #include "stm32f10x_usart.h"
 #include "stm32f10x_i2c.h"
 
+#include "misc.h"
+#include "stm32f10x_tim.h"
+
 
 volatile uint8_t RX_FLAG_END_LINE = 0;
+volatile uint8_t FLAG_MH19 = 0;
+
+
 volatile uint8_t RXi = 0;
 volatile uint8_t timer_uart = 0;
 
@@ -45,7 +51,7 @@ inline static uint8_t CRC8(volatile uint8_t word[BUF_SIZE]) {
 	return crc;
 }
 
-void EXTI0_IRQHandler(void)
+void EXTI0_IRQHandler(void)//будильник
 {
 	GPIOC->ODR^=GPIO_Pin_13; //Инвертируем состояние светодиода
 	ds3231_del_alarm();
@@ -82,9 +88,9 @@ void USART3_IRQHandler(void)
 		TX_BUF[RXi] = USART_ReceiveData(USART3); //Присвоение элементу массива значения очередного байта
 
 		if (RXi == BUF_SIZE-1){
-				TX_BUF[0] = GET_CO2;
-				USARTSend(TX_BUF);
-				RXi = 0;//обнуление счетчика массива. Только здесь это не вызовет ошибки
+			TX_BUF[0] = GET_CO2;
+			USARTSend(TX_BUF);
+			RXi = 0;//обнуление счетчика массива. Только здесь это не вызовет ошибки
 		}
 		else {
 			RXi++;//переход к следующему элементу массива.
@@ -129,6 +135,18 @@ void USART_Error(volatile uint8_t err)
 	TX_BUF[0] = ERROR;
 	TX_BUF[1] = err;
 	USARTSend(TX_BUF);
+}
+void TIM3_IRQHandler(void)
+{
+	if (TIM_GetITStatus(TIM3, ((uint16_t)0x0001)) != RESET)
+	{
+		FLAG_MH19 = 1;
+
+		GPIOC->ODR ^= GPIO_Pin_13;
+		// Обязательно сбрасываем флаг
+		TIM_ClearITPendingBit(TIM3, ((uint16_t)0x0001));
+
+	}
 }
 
 
@@ -203,7 +221,15 @@ int main(void)
 					switch(RX_BUF[1]) {
 
 					case 0:
-						USART3Send(getppm);
+
+						if(!FLAG_MH19){
+							GPIOC->ODR ^= GPIO_Pin_13;
+							timer_init();
+						}
+						else {
+							//TIM_Cmd(TIM3, DISABLE);
+							//GPIOC->ODR &= ~GPIO_Pin_13;
+						}
 						break;
 					case 1:
 						USART3Send(ppm2k);
@@ -220,13 +246,21 @@ int main(void)
 					}
 					break;
 			}
-			if(TX_BUF[0]!=ERROR)
-				USARTSend(TX_BUF);//отправка собранного пакета данных
+			if(TX_BUF[0]!=ERROR){
+				if(TX_BUF[0]!=GET_CO2)
+					USARTSend(TX_BUF);//отправка собранного пакета данных
+			}
 			else {
 				USART_Error(I2C_ERR);
 				was_I2C_ERR = 1;
 			}
 		}
+
+    	if(FLAG_MH19){
+    		FLAG_MH19 = 0;
+    		USART3Send(getppm);
+    	}
+
     	if(timer_uart) {// длительность между байтами в пакете данных
 			for(uint16_t i = 50000; i; i--);
 			timer_uart--;
