@@ -65,14 +65,15 @@ void USART1_IRQHandler(void)
 		RX_BUF[RXi] = USART_ReceiveData(USART1); //Присвоение элементу массива значения очередного байта
 
 		if (RXi == BUF_SIZE-1){
+			RXi = 0;//обнуление счетчика массива. Только здесь это не вызовет ошибки
+
 			if(RX_BUF[BUF_SIZE-1]==CRC8(RX_BUF)){//Проверка на целостность пакета данных (Величина и контрольная сумма)
 				RX_FLAG_END_LINE = 1; //разрешение обработки данных в основном цикле
-				RXi = 0;//обнуление счетчика массива. Только здесь это не вызовет ошибки
-
 			}
 			else{
 				USART_Error(NOT_EQUAL_CRC);// не совпадение CRC. Значит потеряны данные. + защита от переполнения буфера
 			}
+
 		}
 		else {
 			RXi++;//переход к следующему элементу массива.
@@ -84,13 +85,13 @@ void USART3_IRQHandler(void)
 {
     if ((USART3->SR & USART_FLAG_RXNE) != (u16)RESET)
     {
-    	//timer_uart = 2;// опытным путем вычисленное значение (имеет право на изменение)
+
 		TX_BUF[RXi] = USART_ReceiveData(USART3); //Присвоение элементу массива значения очередного байта
 
 		if (RXi == BUF_SIZE-1){
+			RXi = 0;//обнуление счетчика массива. Только здесь это не вызовет ошибки
 			TX_BUF[0] = GET_CO2;
 			USARTSend(TX_BUF);
-			RXi = 0;//обнуление счетчика массива. Только здесь это не вызовет ошибки
 		}
 		else {
 			RXi++;//переход к следующему элементу массива.
@@ -161,7 +162,7 @@ int main(void)
 	//servo_init();
 	ports_init();
 	I2C1_init();
-
+	timer_init();
 
 	GPIOC->ODR ^= GPIO_Pin_13;
 
@@ -223,11 +224,11 @@ int main(void)
 					case 0:
 
 						if(!FLAG_MH19){
-							GPIOC->ODR ^= GPIO_Pin_13;
-							timer_init();
+							//GPIOC->ODR ^= GPIO_Pin_13;
+							TIM_Cmd(TIM3, ENABLE);
 						}
 						else {
-							//TIM_Cmd(TIM3, DISABLE);
+							TIM_Cmd(TIM3, DISABLE);
 							//GPIOC->ODR &= ~GPIO_Pin_13;
 						}
 						break;

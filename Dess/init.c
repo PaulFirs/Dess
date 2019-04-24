@@ -249,7 +249,7 @@ void timer_init(void) {
     timer.TIM_Period = 50000;
 	TIM_TimeBaseInit(TIM3, &timer);
 	TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
-	TIM_Cmd(TIM3, ENABLE);
+	//TIM_Cmd(TIM3, ENABLE);
 
 
 
