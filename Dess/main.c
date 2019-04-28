@@ -3,18 +3,20 @@
 #include "stm32f10x_gpio.h"
 #include "init.h"
 #include "stm32f10x_usart.h"
+
 #include "stm32f10x_i2c.h"
 
 #include "misc.h"
 #include "stm32f10x_tim.h"
 
+#include "ds3231.h"
 
 volatile uint8_t RX_FLAG_END_LINE = 0;
-volatile uint8_t FLAG_MH19 = 0;
 
 
-volatile uint8_t RXi = 0;
-volatile uint8_t timer_uart = 0;
+volatile uint8_t RXi;
+volatile uint8_t timer_uart1;
+volatile uint8_t timer_uart3 = 0;
 
 const uint8_t getppm[9]			= {0xff, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
 const uint8_t ppm2k[9]			= {0xff, 0x01, 0x99, 0x00, 0x00, 0x00, 0x07, 0xd0, 0x8f};
@@ -24,11 +26,11 @@ const uint8_t clbd[9]			= {0xff, 0x01, 0x88, 0x00, 0x00, 0x00, 0x07, 0xD0, 0xa0}
 
 uint8_t was_I2C_ERR = 0;
 
-void delay()
+void delay(uint32_t delay)
 {
-for(volatile uint32_t del = 0; del<250000; del++);
+for(volatile uint32_t del = 0; del<delay; del++);
 }
-void clear_Buffer(uint8_t *buf) {
+void clear_Buffer(volatile uint8_t *buf) {
     for (uint8_t i = 0; i<BUF_SIZE; i++)
     	buf[i] = '\0';
 }
@@ -51,6 +53,42 @@ inline static uint8_t CRC8(volatile uint8_t word[BUF_SIZE]) {
 	return crc;
 }
 
+/*
+ * срочно зделать через указатели!!!!!!!!!!!!!!!!!!!
+ */
+void USARTSend(volatile uint8_t pucBuffer[BUF_SIZE])
+{
+	pucBuffer[BUF_SIZE-1] = CRC8(TX_BUF);
+    for (uint8_t i=0;i<BUF_SIZE;i++)
+    {
+        USART_SendData(USART1, pucBuffer[i]);
+        while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
+        {
+        }
+    }
+    clear_Buffer(TX_BUF);//очистка буфера TX
+}
+
+void USART3Send(const uint8_t pucBuffer[BUF_SIZE])
+{
+    for (uint8_t i=0;i<BUF_SIZE;i++)
+    {
+        USART_SendData(USART3, pucBuffer[i]);
+        while(USART_GetFlagStatus(USART3, USART_FLAG_TC) == RESET)
+        {
+        }
+    }
+}
+
+void USART_Error(volatile uint8_t err)
+{
+	clear_Buffer(RX_BUF);
+	RXi = 0;
+	TX_BUF[0] = ERROR;
+	TX_BUF[1] = err;
+	USARTSend(TX_BUF);
+}
+
 void EXTI0_IRQHandler(void)//будильник
 {
 	GPIOC->ODR^=GPIO_Pin_13; //»нвертируем состо€ние светодиода
@@ -61,7 +99,7 @@ void USART1_IRQHandler(void)
 {
     if ((USART1->SR & USART_FLAG_RXNE) != (u16)RESET)
     {
-    	timer_uart = 2;// опытным путем вычисленное значение (имеет право на изменение)
+    	timer_uart1 = 2;// опытным путем вычисленное значение (имеет право на изменение)
 		RX_BUF[RXi] = USART_ReceiveData(USART1); //ѕрисвоение элементу массива значени€ очередного байта
 
 		if (RXi == BUF_SIZE-1){
@@ -85,65 +123,31 @@ void USART3_IRQHandler(void)
 {
     if ((USART3->SR & USART_FLAG_RXNE) != (u16)RESET)
     {
-
+    	timer_uart3 = 2;// опытным путем вычисленное значение (имеет право на изменение)
 		TX_BUF[RXi] = USART_ReceiveData(USART3); //ѕрисвоение элементу массива значени€ очередного байта
 
 		if (RXi == BUF_SIZE-1){
 			RXi = 0;//обнуление счетчика массива. “олько здесь это не вызовет ошибки
+			timer_uart3 = 0;
 			TX_BUF[0] = GET_CO2;
 			USARTSend(TX_BUF);
 		}
 		else {
 			RXi++;//переход к следующему элементу массива.
 		}
+
     }
 }
 
 
 
-/*
- * срочно зделать через указатели!!!!!!!!!!!!!!!!!!!
- */
-void USARTSend(volatile uint8_t pucBuffer[BUF_SIZE])
-{
-	pucBuffer[BUF_SIZE-1] = CRC8(TX_BUF);
-    for (uint8_t i=0;i<BUF_SIZE;i++)
-    {
-        USART_SendData(USART1, pucBuffer[i]);
-        while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
-        {
-        }
-    }
-    clear_Buffer(TX_BUF);//очистка буфера TX
-}
 
-void USART3Send(volatile uint8_t pucBuffer[BUF_SIZE])
-{
-    for (uint8_t i=0;i<BUF_SIZE;i++)
-    {
-        USART_SendData(USART3, pucBuffer[i]);
-        while(USART_GetFlagStatus(USART3, USART_FLAG_TC) == RESET)
-        {
-        }
-    }
-}
-
-void USART_Error(volatile uint8_t err)
-{
-	clear_Buffer(RX_BUF);
-	timer_uart = 0;
-	RXi = 0;
-	TX_BUF[0] = ERROR;
-	TX_BUF[1] = err;
-	USARTSend(TX_BUF);
-}
 void TIM3_IRQHandler(void)
 {
 	if (TIM_GetITStatus(TIM3, ((uint16_t)0x0001)) != RESET)
 	{
-		FLAG_MH19 = 1;
 
-		GPIOC->ODR ^= GPIO_Pin_13;
+		USART3Send(getppm);
 		// ќб€зательно сбрасываем флаг
 		TIM_ClearITPendingBit(TIM3, ((uint16_t)0x0001));
 
@@ -154,14 +158,17 @@ void TIM3_IRQHandler(void)
 
 int main(void)
 {
+	RXi = 0;
+	timer_uart1 = 0;
+
 
 	SetSysClockTo72();
-	usart1_init();
 
-	usart2_init();
-	//servo_init();
-	ports_init();
+
 	I2C1_init();
+	usart1_init();
+	usart2_init();
+	ports_init();
 	timer_init();
 
 	GPIOC->ODR ^= GPIO_Pin_13;
@@ -169,7 +176,7 @@ int main(void)
     while(1)
     {
     	if (RX_FLAG_END_LINE == 1) {
-    		timer_uart = 0;
+    		timer_uart1 = 0;
 			RX_FLAG_END_LINE = 0;
 
 			if(was_I2C_ERR && RX_BUF[0]<10){//≈сли была ошибка в шине I2C и пришла одна из команд св€занных с этой шиной.
@@ -177,9 +184,9 @@ int main(void)
 				was_I2C_ERR = 0;
 
 				I2C_DeInit(I2C1);
-				delay();
+				delay(250000);
 				I2C1_init();
-				delay();
+				delay(250000);
 			}
 
 			TX_BUF[0] = RX_BUF[0];//копирование ответной команды
@@ -222,15 +229,10 @@ int main(void)
 					switch(RX_BUF[1]) {
 
 					case 0:
-
-						if(!FLAG_MH19){
-							//GPIOC->ODR ^= GPIO_Pin_13;
-							TIM_Cmd(TIM3, ENABLE);
-						}
-						else {
-							TIM_Cmd(TIM3, DISABLE);
-							//GPIOC->ODR &= ~GPIO_Pin_13;
-						}
+						//if(TIM3->CR1 & TIM_CR1_CEN)
+							//TIM_Cmd(TIM3, DISABLE);
+						//else
+						TIM_Cmd(TIM3, ENABLE);
 						break;
 					case 1:
 						USART3Send(ppm2k);
@@ -257,16 +259,18 @@ int main(void)
 			}
 		}
 
-    	if(FLAG_MH19){
-    		FLAG_MH19 = 0;
-    		USART3Send(getppm);
-    	}
-
-    	if(timer_uart) {// длительность между байтами в пакете данных
-			for(uint16_t i = 50000; i; i--);
-			timer_uart--;
-			if(!timer_uart){
+    	if(timer_uart1) {// длительность между байтами в пакете данных
+    		delay(50000);
+			timer_uart1--;
+			if(!timer_uart1){
 				USART_Error(NOT_FULL_DATA);// если он обнулилс€ здесь, то это ошибка не полного пакета.
+			}
+		}
+    	if(timer_uart3) {// длительность между байтами в пакете данных
+    		delay(50000);
+			timer_uart3--;
+			if(!timer_uart3){
+				RXi = 0;
 			}
 		}
     }

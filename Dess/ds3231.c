@@ -1,4 +1,5 @@
 #include "stm32f10x.h"
+#include "stm32f10x_i2c.h"
 #include "init.h"
 
 uint8_t DS3231_read_temp(void){

@@ -17,7 +17,6 @@
 
 
 
-
  /*
   * Comands for I2C
   */
@@ -71,7 +70,9 @@ void SetSysClockTo72(void);
 void usart1_init(void);
 void usart2_init(void);
 void servo_init(void);
-
+void ports_init(void);
+void timer_init(void);
+void I2C1_init(void);
 
 
 #ifdef __cplusplus

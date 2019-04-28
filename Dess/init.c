@@ -3,8 +3,8 @@
 
 
 #include "misc.h"
-#include "stm32f10x_usart.h"
 #include "stm32f10x_tim.h"
+#include "stm32f10x_usart.h"
 #include "stm32f10x_i2c.h"
 
 
@@ -208,7 +208,7 @@ void ports_init(void) {
 	GPIO_Init(GPIOC, &port);
 
 
-
+//прерывание на PORTB_0
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB , ENABLE);
 	//Прерывания - это альтернативная функция порта
 	//поэтому надо установить бит Alternate function I/O clock enable

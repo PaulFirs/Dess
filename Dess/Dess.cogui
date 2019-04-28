@@ -9,14 +9,50 @@
 <editorArea activeWorkbook="DefaultEditorWorkbook">
 <info part="DefaultEditorWorkbook">
 <folder appearance="1" expanded="2">
-<presentation id="org.eclipse.ui.presentations.WorkbenchPresentationFactory"/>
+<presentation id="org.eclipse.ui.presentations.WorkbenchPresentationFactory">
+<part id="0"/>
+<part id="1"/>
+<part id="2"/>
+<part id="3"/>
+<part id="4"/>
+<part id="5"/>
+<part id="6"/>
+</presentation>
 </folder>
 </info>
 </editorArea>
+<editor activePart="true" focus="true" id="org.eclipse.cdt.ui.editor.CEditor" name="main.c" partName="main.c" path="D:/Profile/Desktop/Dess-master/Dess/main.c" title="main.c" tooltip="D:/Profile/Desktop/Dess-master/Dess/main.c" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/Dess/main.c"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="1068" selectionTopPixel="1150"/>
+</editor>
+<editor id="org.eclipse.cdt.ui.editor.CEditor" name="init.h" partName="init.h" path="D:/Profile/Desktop/Dess-master/Dess/init.h" title="init.h" tooltip="D:/Profile/Desktop/Dess-master/Dess/init.h" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/Dess/stm_lib/inc/periphery/init.h"/>
+<editorState selectionHorizontalPixel="0" selectionLength="7" selectionOffset="570" selectionTopPixel="420"/>
+</editor>
+<editor id="org.eclipse.cdt.ui.editor.CEditor" name="init.c" partName="init.c" path="D:/Profile/Desktop/Dess-master/Dess/init.c" title="init.c" tooltip="D:/Profile/Desktop/Dess-master/Dess/init.c" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/Dess/stm_lib/src/periphery/init.c"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="7484" selectionTopPixel="3420"/>
+</editor>
+<editor id="org.eclipse.cdt.ui.editor.CEditor" name="ds3231.c" partName="ds3231.c" path="D:/Profile/Desktop/Dess-master/Dess/ds3231.c" title="ds3231.c" tooltip="D:/Profile/Desktop/Dess-master/Dess/ds3231.c" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/Dess/stm_lib/src/periphery/ds3231.c"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="257" selectionTopPixel="0"/>
+</editor>
+<editor id="org.eclipse.cdt.ui.editor.CEditor" name="stm32f10x_tim.c" partName="stm32f10x_tim.c" path="D:/Profile/Desktop/Dess-master/Dess/stm_lib/src/stm32f10x_tim.c" title="stm32f10x_tim.c" tooltip="D:/Profile/Desktop/Dess-master/Dess/stm_lib/src/stm32f10x_tim.c" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/Dess/stm_lib/src/stm32f10x_tim.c"/>
+<editorState selectionHorizontalPixel="0" selectionLength="15" selectionOffset="98698" selectionTopPixel="44506"/>
+</editor>
+<editor id="org.eclipse.cdt.ui.editor.CEditor" name="stm32f10x_tim.h" partName="stm32f10x_tim.h" path="D:/Profile/Desktop/Dess-master/Dess/stm_lib/inc/stm32f10x_tim.h" title="stm32f10x_tim.h" tooltip="D:/Profile/Desktop/Dess-master/Dess/stm_lib/inc/stm32f10x_tim.h" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/Dess/stm_lib/inc/stm32f10x_tim.h"/>
+<editorState selectionHorizontalPixel="0" selectionLength="15" selectionOffset="52095" selectionTopPixel="19091"/>
+</editor>
+<editor id="org.eclipse.cdt.ui.editor.CEditor" name="i2c.c" partName="i2c.c" path="D:/Profile/Desktop/Dess-master/Dess/i2c.c" title="i2c.c" tooltip="D:/Profile/Desktop/Dess-master/Dess/i2c.c" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/Dess/stm_lib/src/periphery/i2c.c"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="421" selectionTopPixel="0"/>
+</editor>
 </editors>
 <views>
 <view id="org.coocox.builder.ui.views.ProjectView" partName="Project">
-<viewState CommonNavigator.LINKING_ENABLED="0" horizontalPosition="0" org.eclipse.ui.navigator.resources.workingSets.showTopLevelWorkingSets="0" verticalPosition="0">
+<viewState CommonNavigator.LINKING_ENABLED="0" horizontalPosition="0" org.eclipse.ui.navigator.resources.workingSets.showTopLevelWorkingSets="0" verticalPosition="4">
 <expanded>
 <element path="/Dess"/>
 <element path="/Dess/stm_lib"/>
@@ -26,7 +62,7 @@
 <element path="/Dess/stm_lib/src/periphery"/>
 </expanded>
 <selection>
-<element path="/Dess/stm_lib/src/stm32f10x_gpio.c"/>
+<element path="/Dess/stm_lib/src/periphery/i2c.c"/>
 </selection>
 </viewState>
 </view>
@@ -37,7 +73,7 @@
 <viewState/>
 </view>
 </views>
-<perspectives activePart="org.eclipse.ui.console.ConsoleView" activePerspective="org.coocox.builder.perspective.CoBuilder">
+<perspectives activePart="org.eclipse.cdt.ui.editor.CEditor" activePerspective="org.coocox.builder.perspective.CoBuilder">
 <perspective editorAreaTrimState="2" editorAreaVisible="1" fixed="0" version="0.016">
 <descriptor class="org.coocox.builder.ui.PerspectiveCoBuilder" id="org.coocox.builder.perspective.CoBuilder" label="CooCox CoBuilder"/>
 <alwaysOnActionSet id="org.coocox.component.ui.actionSet"/>
@@ -125,59 +161,219 @@
 </perspective>
 </perspectives>
 <workingSets/>
-<navigationHistory/>
+<navigationHistory>
+<editors>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/Dess/main.c"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/Dess/stm_lib/inc/periphery/init.h"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/Dess/stm_lib/src/periphery/init.c"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/Dess/stm_lib/src/periphery/ds3231.c"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/Dess/stm_lib/inc/stm32f10x_tim.h"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/Dess/stm_lib/src/periphery/i2c.c"/>
+</editors>
+<item historyLabel="stm32f10x_tim.h" index="4">
+<position info="not_deleted" x="52095" y="15"/>
+</item>
+<item historyLabel="main.c" index="0">
+<position info="not_deleted" x="160" y="47"/>
+</item>
+<item historyLabel="init.c" index="2">
+<position info="not_deleted" x="59" y="0"/>
+</item>
+<item historyLabel="init.h" index="1">
+<position info="not_deleted" x="1469" y="0"/>
+</item>
+<item historyLabel="main.c" index="0">
+<position info="not_deleted" x="160" y="47"/>
+</item>
+<item historyLabel="init.c" index="2">
+<position info="not_deleted" x="106" y="0"/>
+</item>
+<item historyLabel="main.c" index="0">
+<position info="not_deleted" x="160" y="47"/>
+</item>
+<item historyLabel="main.c" index="0">
+<position info="not_deleted" x="158" y="0"/>
+</item>
+<item historyLabel="main.c" index="0">
+<position info="not_deleted" x="81" y="0"/>
+</item>
+<item historyLabel="init.c" index="2">
+<position info="not_deleted" x="106" y="0"/>
+</item>
+<item historyLabel="init.h" index="1">
+<position info="not_deleted" x="1469" y="0"/>
+</item>
+<item historyLabel="init.c" index="2">
+<position info="not_deleted" x="106" y="0"/>
+</item>
+<item historyLabel="main.c" index="0">
+<position info="not_deleted" x="81" y="0"/>
+</item>
+<item historyLabel="main.c" index="0">
+<position info="not_deleted" x="4744" y="0"/>
+</item>
+<item historyLabel="ds3231.c" index="3">
+<position info="not_deleted" x="257" y="0"/>
+</item>
+<item historyLabel="i2c.c" index="5">
+<position info="not_deleted" x="586" y="0"/>
+</item>
+<item historyLabel="main.c" index="0">
+<position info="not_deleted" x="4797" y="0"/>
+</item>
+<item historyLabel="main.c" index="0">
+<position info="not_deleted" x="329" y="0"/>
+</item>
+<item historyLabel="main.c" index="0">
+<position info="not_deleted" x="272" y="0"/>
+</item>
+<item historyLabel="main.c" index="0">
+<position info="not_deleted" x="6045" y="0"/>
+</item>
+<item historyLabel="main.c" index="0">
+<position info="not_deleted" x="2375" y="0"/>
+</item>
+<item historyLabel="init.h" index="1">
+<position/>
+</item>
+<item historyLabel="ds3231.c" index="3">
+<position info="not_deleted" x="257" y="0"/>
+</item>
+<item historyLabel="i2c.c" index="5">
+<position info="not_deleted" x="421" y="0"/>
+</item>
+<item historyLabel="init.h" index="1">
+<position/>
+</item>
+<item historyLabel="main.c" index="0">
+<position info="not_deleted" x="2375" y="0"/>
+</item>
+<item historyLabel="main.c" index="0">
+<position/>
+</item>
+<item historyLabel="i2c.c" index="5">
+<position info="not_deleted" x="421" y="0"/>
+</item>
+<item historyLabel="init.h" index="1">
+<position info="not_deleted" x="197" y="0"/>
+</item>
+<item historyLabel="main.c" index="0">
+<position/>
+</item>
+<item historyLabel="i2c.c" index="5">
+<position info="not_deleted" x="421" y="0"/>
+</item>
+<item historyLabel="main.c" index="0">
+<position/>
+</item>
+<item historyLabel="i2c.c" index="5">
+<position info="not_deleted" x="421" y="0"/>
+</item>
+<item historyLabel="init.h" index="1">
+<position info="not_deleted" x="197" y="0"/>
+</item>
+<item historyLabel="main.c" index="0">
+<position/>
+</item>
+<item historyLabel="init.c" index="2">
+<position info="not_deleted" x="106" y="0"/>
+</item>
+<item historyLabel="init.h" index="1">
+<position info="not_deleted" x="570" y="7"/>
+</item>
+<item historyLabel="main.c" index="0">
+<position info="not_deleted" x="6375" y="0"/>
+</item>
+<item historyLabel="i2c.c" index="5">
+<position/>
+</item>
+<item historyLabel="main.c" index="0">
+<position/>
+</item>
+<item historyLabel="i2c.c" index="5">
+<position/>
+</item>
+<item historyLabel="main.c" index="0">
+<position/>
+</item>
+<item historyLabel="i2c.c" index="5">
+<position info="not_deleted" x="421" y="0"/>
+</item>
+<item historyLabel="main.c" index="0">
+<position/>
+</item>
+<item historyLabel="init.c" index="2">
+<position info="not_deleted" x="8090" y="0"/>
+</item>
+<item historyLabel="main.c" index="0">
+<position/>
+</item>
+<item historyLabel="i2c.c" index="5">
+<position info="not_deleted" x="421" y="0"/>
+</item>
+<item historyLabel="main.c" index="0">
+<position info="not_deleted" x="1068" y="0"/>
+</item>
+<item historyLabel="init.c" index="2">
+<position info="not_deleted" x="7484" y="0"/>
+</item>
+<item active="true" historyLabel="main.c" index="0">
+<position info="not_deleted" x="1068" y="0"/>
+</item>
+</navigationHistory>
 <input factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/" type="8"/>
 </page>
 <workbenchWindowAdvisor/>
 <actionBarAdvisor/>
 </window>
 <mruList>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="stm32f10x_gpio.c" tooltip="Dess/stm_lib/src/stm32f10x_gpio.c">
-<persistable path="/Dess/stm_lib/src/stm32f10x_gpio.c"/>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="i2c.c" tooltip="Dess/stm_lib/src/periphery/i2c.c">
+<persistable path="/Dess/stm_lib/src/periphery/i2c.c"/>
 </file>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="stm32f10x_gpio.h" tooltip="Dess/stm_lib/inc/stm32f10x_gpio.h">
-<persistable path="/Dess/stm_lib/inc/stm32f10x_gpio.h"/>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="stm32f10x_tim.h" tooltip="Dess/stm_lib/inc/stm32f10x_tim.h">
+<persistable path="/Dess/stm_lib/inc/stm32f10x_tim.h"/>
 </file>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="usb_init.h" tooltip="Dess/stm_usb_fs_lib/inc/usb_init.h">
-<persistable path="/Dess/stm_usb_fs_lib/inc/usb_init.h"/>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="stm32f10x_tim.c" tooltip="Dess/stm_lib/src/stm32f10x_tim.c">
+<persistable path="/Dess/stm_lib/src/stm32f10x_tim.c"/>
 </file>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="usb_init.c" tooltip="Dess/stm_usb_fs_lib/src/usb_init.c">
-<persistable path="/Dess/stm_usb_fs_lib/src/usb_init.c"/>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="ds3231.c" tooltip="Dess/stm_lib/src/periphery/ds3231.c">
+<persistable path="/Dess/stm_lib/src/periphery/ds3231.c"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="init.c" tooltip="Dess/stm_lib/src/periphery/init.c">
+<persistable path="/Dess/stm_lib/src/periphery/init.c"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="init.h" tooltip="Dess/stm_lib/inc/periphery/init.h">
+<persistable path="/Dess/stm_lib/inc/periphery/init.h"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="stm32f10x_i2c.h" tooltip="Dess/stm_lib/inc/stm32f10x_i2c.h">
+<persistable path="/Dess/stm_lib/inc/stm32f10x_i2c.h"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="main.c" tooltip="Dess/main.c">
+<persistable path="/Dess/main.c"/>
+</file>
+<file factoryID="org.coocox.builder.ui.persistent.PersistentElementFactory" id="org.coocox.welcome.ui.WelcomePage" name="" tooltip="">
+<persistable>
+<org.coocox.welcome.ui.WelcomePage/>
+</persistable>
 </file>
 <file factoryID="org.coocox.component.ui.editors.repository.RepositoryElementFactory" id="org.coocox.builder.ui.editors.repository.RepositoryBrowser" name="Repository" tooltip="Repository">
 <persistable>&#x0A;<subPage/>
 </persistable>
 </file>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="usb_core.c" tooltip="Dess/stm_usb_fs_lib/src/usb_core.c">
-<persistable path="/Dess/stm_usb_fs_lib/src/usb_core.c"/>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="stm32f10x_usart.h" tooltip="Dess/stm_lib/inc/stm32f10x_usart.h">
+<persistable path="/Dess/stm_lib/inc/stm32f10x_usart.h"/>
 </file>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="usb_endp.c" tooltip="Dess/usb_endp.c">
-<persistable path="/Dess/usb_endp.c"/>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="stm32f10x_rcc.h" tooltip="Dess/stm_lib/inc/stm32f10x_rcc.h">
+<persistable path="/Dess/stm_lib/inc/stm32f10x_rcc.h"/>
 </file>
-<file factoryID="org.eclipse.ui.ide.FileStoreEditorInputFactory" id="org.eclipse.ui.systemExternalEditor" name="Dess.coproj" tooltip="C:\Users\niclab702-1.IWS155F15733N00\Desktop\Dess\Dess.coproj">
-<persistable uri="file:/C:/Users/niclab702-1.IWS155F15733N00/Desktop/Dess/Dess.coproj"/>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="stm32f10x_gpio.h" tooltip="Dess/stm_lib/inc/stm32f10x_gpio.h">
+<persistable path="/Dess/stm_lib/inc/stm32f10x_gpio.h"/>
 </file>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="CH376.c" tooltip="Dess/CoX_Driver/CH376/CH376.c">
-<persistable path="/Dess/CoX_Driver/CH376/CH376.c"/>
+<file factoryID="org.eclipse.ui.ide.FileStoreEditorInputFactory" id="org.eclipse.ui.systemExternalEditor" name="Dess.coproj" tooltip="D:\Profile\Desktop\Dess-Dess-Sunny\Dess\Dess.coproj">
+<persistable uri="file:/D:/Profile/Desktop/Dess-Dess-Sunny/Dess/Dess.coproj"/>
 </file>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="init.c" tooltip="Dess/stm_lib/src/periphery/init.c">
-<persistable path="/Dess/stm_lib/src/periphery/init.c"/>
-</file>
-<file factoryID="org.eclipse.ui.ide.FileStoreEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="init.c" tooltip="C:\Users\niclab702-1.IWS155F15733N00\Desktop\STM32\Dess\init.c">
-<persistable uri="file:/C:/Users/niclab702-1.IWS155F15733N00/Desktop/STM32/Dess/init.c"/>
-</file>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="init.h" tooltip="Dess/stm_lib/inc/periphery/init.h">
-<persistable path="/Dess/stm_lib/inc/periphery/init.h"/>
-</file>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="i2c.c" tooltip="Dess/stm_lib/src/periphery/i2c.c">
-<persistable path="/Dess/stm_lib/src/periphery/i2c.c"/>
-</file>
-<file factoryID="org.coocox.component.ui.editors.repository.RepositoryElementFactory" id="org.coocox.builder.ui.editors.repository.RepositoryBrowser" name="Repository" tooltip="Repository">
-<persistable>&#x0A;<subPage horizontalPosition="0" selectedItemId="446" subPageIndex="2" verticalPosition="0"/>
-</persistable>
-</file>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="usb_core.c" tooltip="Dess/stm_usb_fs_lib/src/usb_core.c">
-<persistable path="/Dess/stm_usb_fs_lib/src/usb_core.c"/>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="stm32f10x_i2c.c" tooltip="Dess/stm_lib/src/stm32f10x_i2c.c">
+<persistable path="/Dess/stm_lib/src/stm32f10x_i2c.c"/>
 </file>
 </mruList>
 </workbench>
