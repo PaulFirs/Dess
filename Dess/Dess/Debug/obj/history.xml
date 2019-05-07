@@ -1,41 +1,44 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <history>
-   <processor signature="arm-none-eabi-gcc noversion nomachine -mcpu=cortex-m3 -mthumb -Wall -ffunction-sections -g -O0 -c -DSTM32F103C8 -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER -D__ASSEMBLY__ -I..\..\..\..\..\..\Profile\Desktop\Dess-master\Dess\stm_lib -I..\..\..\..\..\..\Profile\Desktop -I..\..\..\..\..\..\Profile\Desktop\Dess-master -I..\..\..\..\..\..\Profile\Desktop\Dess-master\Dess\cmsis_boot -I..\..\..\..\..\..\Profile\Desktop\Dess-master\Dess\stm_lib\inc -I..\..\..\..\..\..\Profile\Desktop\Dess-master\Dess -I..\..\..\..\..\..\Profile\Desktop\Dess-master\Dess\cmsis">
-      <target file="ds3231.o" lastModified="16a6278facb">
-         <source file="..\..\..\ds3231.c" lastModified="16a603ed0df"/>
+   <processor signature="arm-none-eabi-gcc noversion nomachine -mcpu=cortex-m3 -mthumb -Wall -ffunction-sections -g -O0 -c -DSTM32F103C8 -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER -D__ASSEMBLY__ -I..\..\..\..\..\Users\niclab702-1.IWS155F15733N00\Desktop\Dess\stm_lib\inc -I..\..\..\..\..\Users\niclab702-1.IWS155F15733N00 -I..\..\..\..\..\Users\niclab702-1.IWS155F15733N00\Desktop\Dess -I..\..\..\..\..\Users\niclab702-1.IWS155F15733N00\Desktop\Dess\cmsis -I..\..\..\..\..\Users\niclab702-1.IWS155F15733N00\Desktop\Dess\stm_lib -I..\..\..\..\..\Users\niclab702-1.IWS155F15733N00\Desktop -I..\..\..\..\..\Users\niclab702-1.IWS155F15733N00\Desktop\Dess\cmsis_boot">
+      <target file="ds3231.o" lastModified="16a91b63326">
+         <source file="..\..\..\ds3231.c" lastModified="16a61ca2980"/>
       </target>
-      <target file="stm32f10x_tim.o" lastModified="16a60147f9d">
-         <source file="..\..\..\stm_lib\src\stm32f10x_tim.c" lastModified="16a4cb0bbe0"/>
+      <target file="stm32f10x_tim.o" lastModified="16a91b4e4df">
+         <source file="..\..\..\stm_lib\src\stm32f10x_tim.c" lastModified="16a61ca2980"/>
       </target>
-      <target file="stm32f10x_i2c.o" lastModified="16a601485d6">
-         <source file="..\..\..\stm_lib\src\stm32f10x_i2c.c" lastModified="16a4cb0bbe0"/>
+      <target file="stm32f10x_i2c.o" lastModified="16a91b4ef8b">
+         <source file="..\..\..\stm_lib\src\stm32f10x_i2c.c" lastModified="16a61ca2980"/>
       </target>
-      <target file="i2c.o" lastModified="16a6278fb0f">
-         <source file="..\..\..\i2c.c" lastModified="16a6278f959"/>
+      <target file="i2c.o" lastModified="16a91b633d2">
+         <source file="..\..\..\i2c.c" lastModified="16a61ca2980"/>
       </target>
-      <target file="system_stm32f10x.o" lastModified="16a601480c0">
-         <source file="..\..\..\cmsis_boot\system_stm32f10x.c" lastModified="16a4cb0bbe0"/>
+      <target file="system_stm32f10x.o" lastModified="16a91b4e720">
+         <source file="..\..\..\cmsis_boot\system_stm32f10x.c" lastModified="16a61ca2980"/>
       </target>
-      <target file="init.o" lastModified="16a6043c146">
-         <source file="..\..\..\init.c" lastModified="16a6043bfee"/>
+      <target file="stm32f10x_spi.o" lastModified="16a91b56857">
+         <source file="..\..\..\stm_lib\src\stm32f10x_spi.c" lastModified="16a91b51c2a"/>
       </target>
-      <target file="main.o" lastModified="16a62961e8d">
-         <source file="..\..\..\main.c" lastModified="16a62961c9c"/>
+      <target file="init.o" lastModified="16a92429b04">
+         <source file="..\..\..\init.c" lastModified="16a924293e3"/>
       </target>
-      <target file="stm32f10x_usart.o" lastModified="16a60148536">
-         <source file="..\..\..\stm_lib\src\stm32f10x_usart.c" lastModified="16a4cb0bbe0"/>
+      <target file="main.o" lastModified="16a926f9872">
+         <source file="..\..\..\main.c" lastModified="16a926f94ad"/>
       </target>
-      <target file="stm32f10x_gpio.o" lastModified="16a60148146">
-         <source file="..\..\..\stm_lib\src\stm32f10x_gpio.c" lastModified="16a4cb0bbe0"/>
+      <target file="stm32f10x_gpio.o" lastModified="16a91b4e849">
+         <source file="..\..\..\stm_lib\src\stm32f10x_gpio.c" lastModified="16a61ca2980"/>
       </target>
-      <target file="stm32f10x_rcc.o" lastModified="16a601484d9">
-         <source file="..\..\..\stm_lib\src\stm32f10x_rcc.c" lastModified="16a4cb0bbe0"/>
+      <target file="stm32f10x_usart.o" lastModified="16a91b4ee42">
+         <source file="..\..\..\stm_lib\src\stm32f10x_usart.c" lastModified="16a61ca2980"/>
       </target>
-      <target file="startup_stm32f10x_md.o" lastModified="16a601480f5">
-         <source file="..\..\..\cmsis_boot\startup\startup_stm32f10x_md.c" lastModified="16a4cb0bbe0"/>
+      <target file="stm32f10x_rcc.o" lastModified="16a91b4ed86">
+         <source file="..\..\..\stm_lib\src\stm32f10x_rcc.c" lastModified="16a61ca2980"/>
       </target>
-      <target file="misc.o" lastModified="16a6014857c">
-         <source file="..\..\..\stm_lib\src\misc.c" lastModified="16a4cb0bbe0"/>
+      <target file="startup_stm32f10x_md.o" lastModified="16a91b4e79d">
+         <source file="..\..\..\cmsis_boot\startup\startup_stm32f10x_md.c" lastModified="16a61ca2980"/>
+      </target>
+      <target file="misc.o" lastModified="16a91b4eed0">
+         <source file="..\..\..\stm_lib\src\misc.c" lastModified="16a61ca2980"/>
       </target>
    </processor>
 </history>

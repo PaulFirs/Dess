@@ -14,8 +14,8 @@
 volatile uint8_t RX_FLAG_END_LINE = 0;
 
 
-volatile uint8_t RXi;
-volatile uint8_t timer_uart1;
+volatile uint8_t RXi = 0;
+volatile uint8_t timer_uart1 = 0;
 volatile uint8_t timer_uart3 = 0;
 
 const uint8_t getppm[9]			= {0xff, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
@@ -91,12 +91,19 @@ void USART_Error(volatile uint8_t err)
 
 void EXTI0_IRQHandler(void)//будильник
 {
-	GPIOC->ODR^=GPIO_Pin_13; //»нвертируем состо€ние светодиода
+	GPIOA->ODR^=GPIO_Pin_2; //»нвертируем состо€ние светодиода
 	ds3231_del_alarm();
 	EXTI->PR|=0x01; //ќчищаем флаг
 }
+
+
+void SPI1_send(void){
+	SPI1->DR = 0b01010111;            //начать передачу с первого байта
+}
+
 void USART1_IRQHandler(void)
 {
+	SPI1_send();
     if ((USART1->SR & USART_FLAG_RXNE) != (u16)RESET)
     {
     	timer_uart1 = 2;// опытным путем вычисленное значение (имеет право на изменение)
@@ -154,12 +161,32 @@ void TIM3_IRQHandler(void)
 	}
 }
 
+uint8_t  SPI_Buff[512];   //данные дл€ передачи
+uint16_t SpiCounter;      //показывает количество переданных байт
+
+//********************************************************************************************
+//function  обработчик прерывани€ от SPI                                                    //
+//********************************************************************************************
+void SPI1_IRQHandler(void)
+{
+  volatile uint16_t tmp;
+
+  //причина прерывани€ - окончание приема байта
+  if(SPI1->SR &= SPI_SR_RXNE)
+  {
+     tmp = SPI1->DR;                  //прочитать прин€тый байт
+     if(tmp = 0b01010111){
+    	 GPIOA->ODR^=GPIO_Pin_2; //»нвертируем состо€ние светодиода
+    	 USART_Error(tmp & 0xFF);
+     }
+  }
+}
+
+
 
 
 int main(void)
 {
-	RXi = 0;
-	timer_uart1 = 0;
 
 
 	SetSysClockTo72();
@@ -171,7 +198,7 @@ int main(void)
 	ports_init();
 	timer_init();
 
-	GPIOC->ODR ^= GPIO_Pin_13;
+	//GPIOC->ODR ^= GPIO_Pin_13;
 
     while(1)
     {
@@ -263,7 +290,7 @@ int main(void)
     		delay(50000);
 			timer_uart1--;
 			if(!timer_uart1){
-				USART_Error(NOT_FULL_DATA);// если он обнулилс€ здесь, то это ошибка не полного пакета.
+				//USART_Error(NOT_FULL_DATA);// если он обнулилс€ здесь, то это ошибка не полного пакета.
 			}
 		}
     	if(timer_uart3) {// длительность между байтами в пакете данных

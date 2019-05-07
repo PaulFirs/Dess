@@ -1,19 +1,20 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <history>
-   <processor signature="arm-none-eabi-gcc -mcpu=cortex-m3 -mthumb -g -nostartfiles -Map=Dess.map -O0 --gc-sections -LD:\Program\CooCox\CoIDE\configuration\ProgramData\Dess -TD:\Program\CooCox\CoIDE\configuration\ProgramData\Dess/link.ld -g">
-      <target file="Dess.elf" lastModified="16a62962097">
-         <source file="..\obj\stm32f10x_tim.o" lastModified="16a60147f9d"/>
-         <source file="..\obj\ds3231.o" lastModified="16a6278facb"/>
-         <source file="..\obj\i2c.o" lastModified="16a6278fb0f"/>
-         <source file="..\obj\system_stm32f10x.o" lastModified="16a601480c0"/>
-         <source file="..\obj\startup_stm32f10x_md.o" lastModified="16a601480f5"/>
-         <source file="..\obj\stm32f10x_gpio.o" lastModified="16a60148146"/>
-         <source file="..\obj\main.o" lastModified="16a62961e8d"/>
-         <source file="..\obj\init.o" lastModified="16a6043c146"/>
-         <source file="..\obj\stm32f10x_rcc.o" lastModified="16a601484d9"/>
-         <source file="..\obj\stm32f10x_usart.o" lastModified="16a60148536"/>
-         <source file="..\obj\misc.o" lastModified="16a6014857c"/>
-         <source file="..\obj\stm32f10x_i2c.o" lastModified="16a601485d6"/>
+   <processor signature="7.3.1 -mcpu=cortex-m3 -mthumb -g -nostartfiles -Map=Dess.map -O0 --gc-sections -LC:\CooCox\CoIDE\configuration\ProgramData\Dess -TC:\CooCox\CoIDE\configuration\ProgramData\Dess/link.ld -g">
+      <target file="Dess.elf" lastModified="16a926f9b11">
+         <source file="..\obj\stm32f10x_tim.o" lastModified="16a91b4e4df"/>
+         <source file="..\obj\ds3231.o" lastModified="16a91b63326"/>
+         <source file="..\obj\i2c.o" lastModified="16a91b633d2"/>
+         <source file="..\obj\system_stm32f10x.o" lastModified="16a91b4e720"/>
+         <source file="..\obj\startup_stm32f10x_md.o" lastModified="16a91b4e79d"/>
+         <source file="..\obj\stm32f10x_gpio.o" lastModified="16a91b4e849"/>
+         <source file="..\obj\main.o" lastModified="16a926f9872"/>
+         <source file="..\obj\init.o" lastModified="16a92429b04"/>
+         <source file="..\obj\stm32f10x_rcc.o" lastModified="16a91b4ed86"/>
+         <source file="..\obj\stm32f10x_usart.o" lastModified="16a91b4ee42"/>
+         <source file="..\obj\misc.o" lastModified="16a91b4eed0"/>
+         <source file="..\obj\stm32f10x_spi.o" lastModified="16a91b56857"/>
+         <source file="..\obj\stm32f10x_i2c.o" lastModified="16a91b4ef8b"/>
       </target>
    </processor>
 </history>

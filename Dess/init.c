@@ -7,6 +7,8 @@
 #include "stm32f10x_usart.h"
 #include "stm32f10x_i2c.h"
 
+#include "stm32f10x_spi.h"
+
 
 
 
@@ -200,12 +202,6 @@ void ports_init(void) {
 	GPIO_Init(GPIOA, &port);
 
 
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
-	//GPIO_StructInit(&port);
-	port.GPIO_Mode = GPIO_Mode_Out_PP;
-	port.GPIO_Pin = GPIO_Pin_13;
-	port.GPIO_Speed = GPIO_Speed_2MHz;
-	GPIO_Init(GPIOC, &port);
 
 
 //прерывание на PORTB_0
@@ -323,4 +319,56 @@ void I2C1_init(void)
 	I2C_AcknowledgeConfig(I2C1, ENABLE);
 }
 
+void SPI1_init(void)
+{
 
+	// Тактирование модуля SPI1 и порта А
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
+
+	// Настраиваем ноги SPI1 для работы в режиме альтернативной функции
+	GPIO_InitTypeDef PORT;
+	// выбрали ноги для настройки
+	PORT.GPIO_Pin   = 0b11100000;
+	// установили наименьшую скорость (максимальная скорость контроллера 4 Мбита в секунду)
+	PORT.GPIO_Speed = GPIO_Speed_2MHz;
+	// (важно!) определяем предназначение ног. здесь - выбор "альтернативной функции" ног
+	PORT.GPIO_Mode  = GPIO_Mode_AF_PP;
+	// настроили ноги в порту А
+	GPIO_Init(GPIOA, &PORT);
+
+	// выбрали ноги для настройки
+	PORT.GPIO_Pin   =  0b00010000;
+	// установили скорость (тут - без разницы)
+	PORT.GPIO_Speed = GPIO_Speed_2MHz;
+	// предназначение - общее, выход
+	PORT.GPIO_Mode  = GPIO_Mode_Out_PP;
+	// настроили ноги в порту A
+	GPIO_Init(GPIOA, &PORT);
+
+
+	//Настройка SPI
+	SPI_InitTypeDef SPIConf;
+	// указываем, что используем мы только передачу данных
+	SPIConf.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
+	// указываем, что наше устройство - Master
+	SPIConf.SPI_Mode = SPI_Mode_Master;
+	// передавать будем по 8 бит (=1 байт)
+	SPIConf.SPI_DataSize = SPI_DataSize_8b;
+	// режим 00
+	SPIConf.SPI_CPOL = SPI_CPOL_Low;
+	SPIConf.SPI_CPHA = SPI_CPHA_1Edge;
+	SPIConf.SPI_NSS = SPI_NSS_Soft;
+	// установим скорость передачи (опытным путём выяснили, что разницы от изменения этого параметра нет)
+	SPIConf.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_2;
+	// передаём данные старшим битом вперёд (т.е. слева направо)
+	SPIConf.SPI_FirstBit = SPI_FirstBit_MSB;
+	// внесём настройки в SPI
+	SPI_Init(SPI1, &SPIConf);
+	// включим  SPI1
+	SPI_Cmd(SPI1, ENABLE);
+	// SS = 1
+	//SPI_NSSInternalSoftwareConfig(SPI1, SPI_NSSInternalSoft_Set);
+
+	SPI1->CR2 |= SPI_CR2_RXNEIE;       //разрешить прерывание, если принят байт данных
+
+}
