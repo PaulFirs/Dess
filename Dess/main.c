@@ -11,7 +11,13 @@
 
 #include "ds3231.h"
 
-volatile uint8_t RX_FLAG_END_LINE = 0;
+
+//макроопределения для управления выводом SS
+#define CS_ENABLE         GPIOB->BSRR = GPIO_BSRR_BR12;
+#define CS_DISABLE    	  GPIOB->BSRR = GPIO_BSRR_BS12;
+
+
+volatile uint8_t RX_FLAG_END_LINE = 0;//флаг полностью собранного без ошибок сообщения от телефона
 
 
 volatile uint8_t RXi = 0;
@@ -89,39 +95,31 @@ void USART_Error(volatile uint8_t err)
 	USARTSend(TX_BUF);
 }
 
-void EXTI0_IRQHandler(void)//будильник
-{
-	GPIOA->ODR^=GPIO_Pin_2; //Инвертируем состояние светодиода
-	ds3231_del_alarm();
-	EXTI->PR|=0x01; //Очищаем флаг
-}
 
 
-void SPI1_send(void){
-	SPI1->DR = 0b01010111;            //начать передачу с первого байта
-}
+
+
 
 void USART1_IRQHandler(void)
 {
-	SPI1_send();
     if ((USART1->SR & USART_FLAG_RXNE) != (u16)RESET)
     {
-    	timer_uart1 = 2;// опытным путем вычисленное значение (имеет право на изменение)
-		RX_BUF[RXi] = USART_ReceiveData(USART1); //Присвоение элементу массива значения очередного байта
+    	timer_uart1 = 2;							//опытным путем вычисленное значение (имеет право на изменение)
+		RX_BUF[RXi] = USART_ReceiveData(USART1); 	//Присвоение элементу массива значения очередного байта
 
 		if (RXi == BUF_SIZE-1){
-			RXi = 0;//обнуление счетчика массива. Только здесь это не вызовет ошибки
+			RXi = 0;								//обнуление счетчика массива. Только здесь это не вызовет ошибки
 
-			if(RX_BUF[BUF_SIZE-1]==CRC8(RX_BUF)){//Проверка на целостность пакета данных (Величина и контрольная сумма)
-				RX_FLAG_END_LINE = 1; //разрешение обработки данных в основном цикле
+			if(RX_BUF[BUF_SIZE-1]==CRC8(RX_BUF)){	//Проверка на целостность пакета данных (Величина и контрольная сумма)
+				RX_FLAG_END_LINE = 1; 				//разрешение обработки данных в основном цикле
 			}
 			else{
-				USART_Error(NOT_EQUAL_CRC);// не совпадение CRC. Значит потеряны данные. + защита от переполнения буфера
+				USART_Error(NOT_EQUAL_CRC);			//не совпадение CRC. Значит потеряны данные. + защита от переполнения буфера
 			}
 
 		}
 		else {
-			RXi++;//переход к следующему элементу массива.
+			RXi++;									//переход к следующему элементу массива.
 		}
     }
 }
@@ -161,26 +159,69 @@ void TIM3_IRQHandler(void)
 	}
 }
 
-uint8_t  SPI_Buff[512];   //данные для передачи
-uint16_t SpiCounter;      //показывает количество переданных байт
+
+
+void SPI2_send(void){
+	uint8_t data = 0b01010111;
+	if(SPI2->SR & SPI_SR_MODF){}
+		//GPIOA->ODR^=GPIO_Pin_0; //Инвертируем состояние светодиода
+	else{
+
+		//ждём пока опустошится Tx буфер
+		while(!(SPI2->SR & SPI_SR_TXE));
+		//активируем Chip Select
+		//CS_LOW
+			//отправляем данные
+		*(uint8_t *)&SPI2->DR = data;
+
+		GPIOA->ODR^=GPIO_Pin_0; //Инвертируем состояние светодиода
+
+
+
+	}
+}
 
 //********************************************************************************************
 //function  обработчик прерывания от SPI                                                    //
 //********************************************************************************************
-void SPI1_IRQHandler(void)
+void SPI2_IRQHandler(void)
 {
-  volatile uint16_t tmp;
+  volatile uint8_t tmp;
 
+  GPIOA->ODR^=GPIO_Pin_1; //Инвертируем состояние светодиода
   //причина прерывания - окончание приема байта
-  if(SPI1->SR &= SPI_SR_RXNE)
+  if(SPI2->SR &= SPI_SR_RXNE)
   {
-     tmp = SPI1->DR;                  //прочитать принятый байт
-     if(tmp = 0b01010111){
-    	 GPIOA->ODR^=GPIO_Pin_2; //Инвертируем состояние светодиода
-    	 USART_Error(tmp & 0xFF);
+     tmp = SPI2->DR;                  //прочитать принятый байт
+     if(tmp == 0b01010111){
+			GPIOA->ODR^=GPIO_Pin_2;
      }
   }
 }
+
+
+
+
+
+
+
+
+
+
+void EXTI0_IRQHandler(void)//будильник
+{
+	//GPIOA->ODR^=GPIO_Pin_2; //Инвертируем состояние светодиода
+	EXTI->PR|=0x01; //Очищаем флаг
+
+	SPI2_send();
+
+
+	//s3231_del_alarm();
+}
+
+
+
+
 
 
 
@@ -192,16 +233,19 @@ int main(void)
 	SetSysClockTo72();
 
 
+	ports_init();
 	I2C1_init();
 	usart1_init();
 	usart2_init();
-	ports_init();
 	timer_init();
+	SPI2_init();//Определяется в SD_init()
 
-	//GPIOC->ODR ^= GPIO_Pin_13;
+
 
     while(1)
     {
+
+
     	if (RX_FLAG_END_LINE == 1) {
     		timer_uart1 = 0;
 			RX_FLAG_END_LINE = 0;
@@ -290,7 +334,7 @@ int main(void)
     		delay(50000);
 			timer_uart1--;
 			if(!timer_uart1){
-				//USART_Error(NOT_FULL_DATA);// если он обнулился здесь, то это ошибка не полного пакета.
+				USART_Error(NOT_FULL_DATA);// если он обнулился здесь, то это ошибка не полного пакета.
 			}
 		}
     	if(timer_uart3) {// длительность между байтами в пакете данных

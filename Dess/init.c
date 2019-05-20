@@ -81,10 +81,83 @@ void SetSysClockTo72(void)
     }
 }
 
+void ports_init(void) {
+	GPIO_InitTypeDef port;
+
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB, ENABLE);
+
+	GPIO_StructInit(&port);
+
+	/* Configure Pins (PA.5,6,7) as output for indicate */
+	port.GPIO_Speed = GPIO_Speed_2MHz;
+	port.GPIO_Mode = GPIO_Mode_Out_PP;
+	port.GPIO_Pin = 0b111;
+	GPIO_Init(GPIOA, &port);
+
+	/* Configure Pin (PB.12) as CS for SPI */
+	port.GPIO_Speed = GPIO_Speed_2MHz;
+	port.GPIO_Mode = GPIO_Mode_Out_PP;
+	port.GPIO_Pin = GPIO_Pin_12;
+	GPIO_Init(GPIOB, &port);
+
+	/* Configure Pin (PB.6,7) as SCK and SDA for I2C */
+	port.GPIO_Speed = GPIO_Speed_2MHz;
+	port.GPIO_Mode = GPIO_Mode_AF_OD;
+	port.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7;
+	GPIO_Init(GPIOB, &port);
+
+	/* Configure USART1 Tx (PA.09) as alternate function push-pull */
+	port.GPIO_Speed = GPIO_Speed_50MHz;
+	port.GPIO_Mode = GPIO_Mode_AF_PP;
+	port.GPIO_Pin = GPIO_Pin_9;
+	GPIO_Init(GPIOA, &port);
+
+	/* Configure USART1 Rx (PA.10) as input floating */
+	port.GPIO_Speed = GPIO_Speed_50MHz;
+	port.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	port.GPIO_Pin = GPIO_Pin_10;
+	GPIO_Init(GPIOA, &port);
+
+
+	/* Configure USART3 Tx (PB.10) as alternate function push-pull */
+	port.GPIO_Speed = GPIO_Speed_50MHz;
+	port.GPIO_Mode = GPIO_Mode_AF_PP;
+	port.GPIO_Pin = GPIO_Pin_10;
+	GPIO_Init(GPIOB, &port);
+
+	/* Configure USART3 Rx (PB.11) as input floating */
+	port.GPIO_Speed = GPIO_Speed_50MHz;
+	port.GPIO_Mode = GPIO_Mode_IN_FLOATING;//болтающийся в воздухе пин, чтоб к нему подвести TX (она же имеет 5В!!!)
+	port.GPIO_Pin = GPIO_Pin_11;
+	GPIO_Init(GPIOB, &port);
+
+
+//прерывание на PORTB_0
+	//RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB , ENABLE);
+	//Прерывания - это альтернативная функция порта
+	//поэтому надо установить бит Alternate function I/O clock enable
+	//в регистре RCC_APB2ENR
+	RCC_APB2PeriphClockCmd(RCC_APB2ENR_AFIOEN , ENABLE);
+	//Наша задача получить в регистре EXTICR[0] такую комбинацию бит
+	// 0000 0000 0001 0000
+	// по умолчанию там ноли, поэтому установим только 1 бит
+	AFIO->EXTICR[0]|=AFIO_EXTICR1_EXTI0_PB;
+	//Прерывания от 13 ноги разрешены
+	EXTI->IMR|=(EXTI_IMR_MR0);
+	//Прерывания на обоих ногах по нарастающему фронту
+	EXTI->FTSR|=(EXTI_RTSR_TR0);
+	//Разрешаем оба прерывания
+	NVIC_EnableIRQ(EXTI0_IRQn);
+
+
+}
+
+
+
 void usart1_init(void)
 {
     /* Enable USART1 and GPIOA clock */
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1 | RCC_APB2Periph_GPIOA, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
 
     /* NVIC Configuration */
     NVIC_InitTypeDef NVIC_InitStructure;
@@ -95,19 +168,7 @@ void usart1_init(void)
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
 
-    /* Configure the GPIOs */
-    GPIO_InitTypeDef GPIO_InitStructure;
 
-    /* Configure USART1 Tx (PA.09) as alternate function push-pull */
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
-
-    /* Configure USART1 Rx (PA.10) as input floating */
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
 
     /* Configure the USART1 */
     USART_InitTypeDef USART_InitStructure;
@@ -147,7 +208,6 @@ void usart2_init(void)
 {
     /* Enable USART1 and GPIOA clock */
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
 
     /* NVIC Configuration */
     NVIC_InitTypeDef NVIC_InitStructure;
@@ -158,19 +218,7 @@ void usart2_init(void)
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
 
-    /* Configure the GPIOs */
-    GPIO_InitTypeDef GPIO_InitStructure;
 
-    /* Configure USART1 Tx (PA.09) as alternate function push-pull */
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-    /* Configure USART1 Rx (PA.10) as input floating */
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;//болтающийся в воздухе пин, чтоб к нему подвести TX (она же имеет 5В!!!)
-    GPIO_Init(GPIOB, &GPIO_InitStructure);
 
     /* Configure the USART1 */
     USART_InitTypeDef USART_InitStructure;
@@ -192,48 +240,7 @@ void usart2_init(void)
     USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
 }
 
-void ports_init(void) {
-	GPIO_InitTypeDef port;
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
-	GPIO_StructInit(&port);
-	port.GPIO_Mode = GPIO_Mode_Out_PP;
-	port.GPIO_Pin = 0b111;
-	port.GPIO_Speed = GPIO_Speed_2MHz;
-	GPIO_Init(GPIOA, &port);
 
-
-
-
-//прерывание на PORTB_0
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB , ENABLE);
-	//Прерывания - это альтернативная функция порта
-	//поэтому надо установить бит Alternate function I/O clock enable
-	//в регистре RCC_APB2ENR
-	RCC_APB2PeriphClockCmd(RCC_APB2ENR_AFIOEN , ENABLE);
-	//Наша задача получить в регистре EXTICR[0] такую комбинацию бит
-	// 0000 0000 0001 0000
-	// по умолчанию там ноли, поэтому установим только 1 бит
-	AFIO->EXTICR[0]|=AFIO_EXTICR1_EXTI0_PB;
-	//Прерывания от 13 ноги разрешены
-	EXTI->IMR|=(EXTI_IMR_MR0);
-	//Прерывания на обоих ногах по нарастающему фронту
-	EXTI->FTSR|=(EXTI_RTSR_TR0);
-	//Разрешаем оба прерывания
-	NVIC_EnableIRQ(EXTI0_IRQn);
-
-
-
-
-
-
-
-
-
-
-
-
-
-}
 void timer_init(void) {
 
 	TIM_TimeBaseInitTypeDef timer;
@@ -245,9 +252,7 @@ void timer_init(void) {
     timer.TIM_Period = 50000;
 	TIM_TimeBaseInit(TIM3, &timer);
 	TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
-	//TIM_Cmd(TIM3, ENABLE);
-
-
+	//TIM_Cmd(TIM3, ENABLE);		//Enabling in main func
 
     /* NVIC Configuration */
     NVIC_InitTypeDef NVIC_InitStructure;
@@ -301,14 +306,9 @@ void servo_init(void) {
 /*******************************************************************/
 void I2C1_init(void)
 {
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO, ENABLE);
-	GPIO_InitTypeDef GPIO_InitStructure;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
-
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
+
 	I2C_InitTypeDef I2C_InitStructure;
 	I2C_StructInit(&I2C_InitStructure);
 	I2C_InitStructure.I2C_ClockSpeed = 100000;
@@ -319,56 +319,32 @@ void I2C1_init(void)
 	I2C_AcknowledgeConfig(I2C1, ENABLE);
 }
 
-void SPI1_init(void)
+void SPI2_init(void)
 {
 
-	// Тактирование модуля SPI1 и порта А
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
+	//включаем тактирование порта B и альтернативных функций
+		RCC->APB2ENR  |= RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN;
 
-	// Настраиваем ноги SPI1 для работы в режиме альтернативной функции
-	GPIO_InitTypeDef PORT;
-	// выбрали ноги для настройки
-	PORT.GPIO_Pin   = 0b11100000;
-	// установили наименьшую скорость (максимальная скорость контроллера 4 Мбита в секунду)
-	PORT.GPIO_Speed = GPIO_Speed_2MHz;
-	// (важно!) определяем предназначение ног. здесь - выбор "альтернативной функции" ног
-	PORT.GPIO_Mode  = GPIO_Mode_AF_PP;
-	// настроили ноги в порту А
-	GPIO_Init(GPIOA, &PORT);
+	//13(SCK) и 15(MOSI) вывод - альтернативная функция  push pull, 14(MISO) вывод - Input floating, 10(CS) вывод - выход, push-pull
+		GPIOB->CRH &= ~(GPIO_CRH_CNF13_0 | GPIO_CRH_CNF15_0 | GPIO_CRH_CNF10_0);
+		GPIOB->CRH |= GPIO_CRH_CNF13_1 | GPIO_CRH_CNF15_1;
+		GPIOB->CRH |= GPIO_CRH_MODE10_0 | GPIO_CRH_MODE13_1 |	GPIO_CRH_MODE15_1;
 
-	// выбрали ноги для настройки
-	PORT.GPIO_Pin   =  0b00010000;
-	// установили скорость (тут - без разницы)
-	PORT.GPIO_Speed = GPIO_Speed_2MHz;
-	// предназначение - общее, выход
-	PORT.GPIO_Mode  = GPIO_Mode_Out_PP;
-	// настроили ноги в порту A
-	GPIO_Init(GPIOA, &PORT);
+	//включаем тактирование SPI2
+		RCC->APB1ENR |= RCC_APB1ENR_SPI2EN;
+
+	        SPI2->CR1 |= SPI_CR1_BR;                //Baud rate = Fpclk/256
+	        SPI2->CR1 &= ~SPI_CR1_CPOL;             //Polarity cls signal CPOL = 0;
+	        SPI2->CR1 &= ~SPI_CR1_CPHA;             //Phase cls signal    CPHA = 0;
+	        SPI2->CR1 |= SPI_CR1_DFF;               //16 bit data
+	        SPI2->CR1 &= ~SPI_CR1_LSBFIRST;         //MSB will be first
+	        SPI2->CR1 |= SPI_CR1_SSM | SPI_CR1_SSI;  //Software slave management & Internal slave select
+
+	        SPI2->CR1 |= SPI_CR1_MSTR;              //Mode Master
+	        SPI2->CR1 |= SPI_CR1_SPE;                //Enable SPI2
 
 
-	//Настройка SPI
-	SPI_InitTypeDef SPIConf;
-	// указываем, что используем мы только передачу данных
-	SPIConf.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
-	// указываем, что наше устройство - Master
-	SPIConf.SPI_Mode = SPI_Mode_Master;
-	// передавать будем по 8 бит (=1 байт)
-	SPIConf.SPI_DataSize = SPI_DataSize_8b;
-	// режим 00
-	SPIConf.SPI_CPOL = SPI_CPOL_Low;
-	SPIConf.SPI_CPHA = SPI_CPHA_1Edge;
-	SPIConf.SPI_NSS = SPI_NSS_Soft;
-	// установим скорость передачи (опытным путём выяснили, что разницы от изменения этого параметра нет)
-	SPIConf.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_2;
-	// передаём данные старшим битом вперёд (т.е. слева направо)
-	SPIConf.SPI_FirstBit = SPI_FirstBit_MSB;
-	// внесём настройки в SPI
-	SPI_Init(SPI1, &SPIConf);
-	// включим  SPI1
-	SPI_Cmd(SPI1, ENABLE);
-	// SS = 1
-	//SPI_NSSInternalSoftwareConfig(SPI1, SPI_NSSInternalSoft_Set);
 
-	SPI1->CR2 |= SPI_CR2_RXNEIE;       //разрешить прерывание, если принят байт данных
-
+	SPI2->CR2 |= SPI_CR2_RXNEIE;       //разрешить прерывание, если принят байт данных
+	NVIC_EnableIRQ (SPI2_IRQn);
 }
