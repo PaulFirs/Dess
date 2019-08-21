@@ -6,7 +6,7 @@
 #endif
 
 
-
+ void DS3231_init(void);
 uint8_t DS3231_read_temp(void);
 void ds3231_del_alarm(void);
 void ds3231_on_alarm(uint8_t stat);

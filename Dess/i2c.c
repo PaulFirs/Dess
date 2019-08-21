@@ -13,7 +13,7 @@ uint8_t cicle(I2C_TypeDef* I2Cx, uint32_t I2C_EVENT){//обработка событий на шине
 		if(I2C_CheckEvent(I2Cx, I2C_EVENT))
 			return 0;
 	}
-	TX_BUF[0] = ERROR;
+	error_i2c = I2C_EVENT & 0xFF;
 	I2C_GenerateSTOP(I2C1, ENABLE);
 	return 1;
 }
@@ -43,13 +43,9 @@ uint8_t I2C_single_read(uint8_t HW_address, uint8_t addr)
 {
 	uint8_t data;
 
-
-
-	//GPIOA->ODR ^= 0b1;
 	I2C_GenerateSTART(I2C1, ENABLE);
 	if(cicle(I2C1, I2C_EVENT_MASTER_MODE_SELECT))
 		return 1;//просто для вылета из функции
-	//GPIOA->ODR ^= 0b10;
 	I2C_Send7bitAddress(I2C1, HW_address, I2C_Direction_Transmitter);
 	if(cicle(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))
 		return 1;//просто для вылета из функции

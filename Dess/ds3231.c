@@ -2,6 +2,17 @@
 #include "stm32f10x_i2c.h"
 #include "init.h"
 
+
+uint8_t DS3231_init(void){
+	error_i2c = 0;
+	uint8_t temp = 1;
+	temp = I2C_single_read(DS_ADDRESS, DS3231_CONTROL);
+	temp |= (1 << DS3231_INTCN);
+	I2C_single_write(DS_ADDRESS, DS3231_CONTROL, temp);
+
+	I2C_single_write(DS_ADDRESS, DS3231_DY, 0b10000000);
+}
+
 uint8_t DS3231_read_temp(void){
 	uint8_t temp = 1;
 

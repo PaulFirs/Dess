@@ -88,16 +88,32 @@ void ports_init(void) {
 
 	GPIO_StructInit(&port);
 
-	/* Configure Pins (PA.5,6,7) as output for indicate */
+	/* Configure Pins (PA.0,1,2,3,4,8) as output for indicate */
+	/* PA.0,1,2 - debug pins */
+	/* PA.3		- Tx to chan */
+	/* PA.4		- SS_SD */
+	/* PA.8		- DC_TFT */
 	port.GPIO_Speed = GPIO_Speed_2MHz;
 	port.GPIO_Mode = GPIO_Mode_Out_PP;
-	port.GPIO_Pin = 0b111;
+	port.GPIO_Pin = 0b11111|GPIO_PinSource8;
 	GPIO_Init(GPIOA, &port);
+
+	/* Configure Pin (PB.0) as input(btn) for chan */
+	port.GPIO_Speed = GPIO_Speed_2MHz;
+	port.GPIO_Mode = GPIO_Mode_IPU;
+	port.GPIO_Pin = GPIO_Pin_0;
+	GPIO_Init(GPIOB, &port);
 
 	/* Configure Pin (PB.12) as CS for SPI */
 	port.GPIO_Speed = GPIO_Speed_2MHz;
 	port.GPIO_Mode = GPIO_Mode_Out_PP;
 	port.GPIO_Pin = GPIO_Pin_12;
+	GPIO_Init(GPIOB, &port);
+
+	/* Configure Pin (PB.10) as DC for SPI */
+	port.GPIO_Speed = GPIO_Speed_2MHz;
+	port.GPIO_Mode = GPIO_Mode_Out_PP;
+	port.GPIO_Pin = GPIO_Pin_3;
 	GPIO_Init(GPIOB, &port);
 
 	/* Configure Pin (PB.6,7) as SCK and SDA for I2C */
@@ -141,13 +157,13 @@ void ports_init(void) {
 	//Ќаша задача получить в регистре EXTICR[0] такую комбинацию бит
 	// 0000 0000 0001 0000
 	// по умолчанию там ноли, поэтому установим только 1 бит
-	AFIO->EXTICR[0]|=AFIO_EXTICR1_EXTI0_PB;
-	//ѕрерывани€ от 13 ноги разрешены
-	EXTI->IMR|=(EXTI_IMR_MR0);
-	//ѕрерывани€ на обоих ногах по нарастающему фронту
-	EXTI->FTSR|=(EXTI_RTSR_TR0);
+	AFIO->EXTICR[0]|=AFIO_EXTICR1_EXTI1_PB;
+	//ѕрерывани€ от 1 ноги разрешены
+	EXTI->IMR|=(EXTI_IMR_MR1);
+	//ѕрерывани€ на ногах по нарастающему фронту
+	EXTI->FTSR|=(EXTI_RTSR_TR1);
 	//–азрешаем оба прерывани€
-	NVIC_EnableIRQ(EXTI0_IRQn);
+	NVIC_EnableIRQ(EXTI1_IRQn);
 
 
 }
@@ -248,11 +264,11 @@ void timer_init(void) {
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
 
     TIM_TimeBaseStructInit(&timer);
-    timer.TIM_Prescaler = 7200;
-    timer.TIM_Period = 50000;
+    timer.TIM_Prescaler = 7200;//раз в секунду считает таймер 72000000/7200 = 10000 раз в секунду
+    timer.TIM_Period = 500;//набрав столько сработает прерывание 500/10000 = 0.05 секунд
 	TIM_TimeBaseInit(TIM3, &timer);
 	TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
-	//TIM_Cmd(TIM3, ENABLE);		//Enabling in main func
+	TIM_Cmd(TIM3, ENABLE);		//Enabling in main func
 
     /* NVIC Configuration */
     NVIC_InitTypeDef NVIC_InitStructure;
@@ -336,15 +352,14 @@ void SPI2_init(void)
 	        SPI2->CR1 |= SPI_CR1_BR;                //Baud rate = Fpclk/256
 	        SPI2->CR1 &= ~SPI_CR1_CPOL;             //Polarity cls signal CPOL = 0;
 	        SPI2->CR1 &= ~SPI_CR1_CPHA;             //Phase cls signal    CPHA = 0;
-	        SPI2->CR1 |= SPI_CR1_DFF;               //16 bit data
+	        SPI2->CR1 &= ~SPI_CR1_DFF;               //8 bit data // SPI2->CR1 |= SPI_CR1_DFF;               //16 bit data
 	        SPI2->CR1 &= ~SPI_CR1_LSBFIRST;         //MSB will be first
 	        SPI2->CR1 |= SPI_CR1_SSM | SPI_CR1_SSI;  //Software slave management & Internal slave select
-
 	        SPI2->CR1 |= SPI_CR1_MSTR;              //Mode Master
 	        SPI2->CR1 |= SPI_CR1_SPE;                //Enable SPI2
 
 
 
-	SPI2->CR2 |= SPI_CR2_RXNEIE;       //разрешить прерывание, если прин€т байт данных
-	NVIC_EnableIRQ (SPI2_IRQn);
+	//SPI2->CR2 |= SPI_CR2_RXNEIE;       //разрешить прерывание, если прин€т байт данных
+	//NVIC_EnableIRQ (SPI2_IRQn);
 }
